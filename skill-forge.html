@@ -1747,45 +1747,6 @@ const DataSync = {
 };
 
 // ============================================================
-// GIST SYNC (GitHub Gist cloud sync — no LAN needed)
-// ============================================================
-let GIST_TOKEN = localStorage.getItem('sf_gist_token') || '';
-const GistSync = {
-  _headers() { return { Authorization: 'Bearer ' + GIST_TOKEN, 'Content-Type': 'application/json' }; },
-
-  async upload() {
-    const data = await DataSync.exportAll();
-    const json = JSON.stringify(data);
-    const gistId = localStorage.getItem('sf_gist_id');
-    let resp;
-    if (gistId) {
-      resp = await fetch('https://api.github.com/gists/' + gistId, {
-        method: 'PATCH', headers: GistSync._headers(),
-        body: JSON.stringify({ files: { 'skill-forge-data.json': { content: json } } }),
-      });
-    } else {
-      resp = await fetch('https://api.github.com/gists', {
-        method: 'POST', headers: GistSync._headers(),
-        body: JSON.stringify({ files: { 'skill-forge-data.json': { content: json } }, public: false, description: 'Skill Forge Sync Data' }),
-      });
-    }
-    if (!resp.ok) throw new Error('上传失败: ' + resp.status);
-    const gist = await resp.json();
-    localStorage.setItem('sf_gist_id', gist.id);
-    return gist.id;
-  },
-
-  async download(gistId) {
-    const resp = await fetch('https://api.github.com/gists/' + gistId, { headers: GistSync._headers() });
-    if (!resp.ok) throw new Error('下载失败: ' + resp.status);
-    const gist = await resp.json();
-    const file = gist.files['skill-forge-data.json'];
-    if (!file || !file.content) throw new Error('Gist 中没有数据');
-    return JSON.parse(file.content);
-  },
-};
-
-// ============================================================
 // SYNC MANAGER (WebSocket relay, full-overwrite, newer-wins)
 // ============================================================
 let RELAY_URL = localStorage.getItem('sf_relay') || (location.host ? 'ws://' + location.host : 'ws://localhost:3456');
@@ -6833,9 +6794,6 @@ function SyncPanel() {
     return saved || RELAY_URL;
   });
   const saveRelay = url => { setRelayUrl(url); RELAY_URL = url; localStorage.setItem('sf_relay', url); };
-  const [gistId, setGistId] = useState(() => localStorage.getItem('sf_gist_id') || '');
-  const [gistJoin, setGistJoin] = useState('');
-  const [gistToken, setGistToken] = useState(() => localStorage.getItem('sf_gist_token') || '');
 
   // Detect LAN IPs
   useEffect(() => {
@@ -6920,44 +6878,6 @@ function SyncPanel() {
       )
     ),
     error && /*#__PURE__*/React.createElement("p", { className: "text-red-400 text-sm" }, "⚠️ ", error),
-    /*#__PURE__*/React.createElement("div", { className: "border-t border-slate-700 pt-3 space-y-2" },
-      /*#__PURE__*/React.createElement("div", { className: "flex gap-2" },
-        /*#__PURE__*/React.createElement("input", { type: "password", value: gistToken, onChange: e => { setGistToken(e.target.value); GIST_TOKEN = e.target.value; localStorage.setItem('sf_gist_token', e.target.value); },
-          placeholder: "GitHub Token (gist 权限)",
-          className: "flex-1 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white text-xs focus:border-blue-500 focus:outline-none" })
-      ),
-      /*#__PURE__*/React.createElement("div", { className: "flex gap-2" },
-        /*#__PURE__*/React.createElement("button", { onClick: async () => {
-          setLoading(true); setError(null);
-          try { var gid = await GistSync.upload(); setGistId(gid); }
-          catch (e) { setError(e.message); }
-          setLoading(false);
-        }, disabled: loading, className: "flex-1 px-3 py-2 bg-blue-800/40 border border-blue-500 text-blue-200 rounded-lg hover:bg-blue-700/40 transition-all disabled:opacity-40 font-bold text-sm" }, loading ? '⏳' : '☁️ 上传到云端'),
-        /*#__PURE__*/React.createElement("div", { className: "flex-1 flex gap-2" },
-          /*#__PURE__*/React.createElement("input", { type: "text", value: gistJoin, onChange: e => setGistJoin(e.target.value), placeholder: "Gist ID",
-            className: "flex-1 bg-slate-900 border border-slate-600 rounded px-2 py-2 text-white text-xs font-mono focus:border-blue-500 focus:outline-none" }),
-          /*#__PURE__*/React.createElement("button", { onClick: async () => {
-            if (!gistJoin.trim()) return;
-            setLoading(true); setError(null);
-            try {
-              var data = await GistSync.download(gistJoin.trim());
-              var local = await DataSync.exportAll();
-              if (DataSync.maxTime(data) > DataSync.maxTime(local)) {
-                await DataSync.fullOverwrite(data);
-                localStorage.setItem('sf_gist_id', gistJoin.trim()); setGistId(gistJoin.trim());
-                if (SyncManager.onDataReceived) SyncManager.onDataReceived(data);
-              } else {
-                await GistSync.upload();
-                localStorage.setItem('sf_gist_id', gistJoin.trim()); setGistId(gistJoin.trim());
-              }
-              dispatch({ type: 'ADD_LOG', payload: '☁️ 云端同步完成' });
-            } catch (e) { setError(e.message); }
-            setLoading(false);
-          }, disabled: loading || !gistJoin.trim(), className: "px-4 py-2 bg-blue-800/40 border border-blue-500 text-blue-200 rounded-lg hover:bg-blue-700/40 transition-all disabled:opacity-40 font-bold text-sm" }, loading ? '..' : '☁️ 同步')
-        )
-      ),
-      gistId ? /*#__PURE__*/React.createElement("p", { className: "text-text-secondary text-[10px] text-center" }, "云端 ID: ", gistId) : null
-    ),
     /*#__PURE__*/React.createElement("div", { className: "border-t border-slate-700 pt-3 space-y-2" },
       lanIP ? /*#__PURE__*/React.createElement("div", { className: "flex items-center gap-2" },
         /*#__PURE__*/React.createElement("span", { className: "text-text-secondary text-xs" }, "电脑IP: ", lanIP),
