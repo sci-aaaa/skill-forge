@@ -1753,23 +1753,23 @@ let GIST_TOKEN = localStorage.getItem('sf_gist_token') || '';
 const GistSync = {
   _headers() { return { Authorization: 'Bearer ' + GIST_TOKEN, 'Content-Type': 'application/json' }; },
 
-  _compress(s) { return btoa(unescape(encodeURIComponent(s))); },
-  _decompress(s) { try { return decodeURIComponent(escape(atob(s))); } catch(e) { return s; } },
-
   async upload() {
     const data = await DataSync.exportAll();
     const json = JSON.stringify(data);
-    const compressed = GistSync._compress(json);
     const gistId = localStorage.getItem('sf_gist_id');
-    let resp, body;
+    let resp;
     if (gistId) {
-      body = JSON.stringify({ files: { 'sf-data.txt': { content: compressed } } });
-      resp = await fetch('https://api.github.com/gists/' + gistId, { method: 'PATCH', headers: GistSync._headers(), body });
+      resp = await fetch('https://api.github.com/gists/' + gistId, {
+        method: 'PATCH', headers: GistSync._headers(),
+        body: JSON.stringify({ files: { 'skill-forge-data.json': { content: json } } }),
+      });
     } else {
-      body = JSON.stringify({ files: { 'sf-data.txt': { content: compressed } }, public: false, description: 'Skill Forge Sync' });
-      resp = await fetch('https://api.github.com/gists', { method: 'POST', headers: GistSync._headers(), body });
+      resp = await fetch('https://api.github.com/gists', {
+        method: 'POST', headers: GistSync._headers(),
+        body: JSON.stringify({ files: { 'skill-forge-data.json': { content: json } }, public: false, description: 'Skill Forge Sync Data' }),
+      });
     }
-    if (!resp.ok) { const t = await resp.text(); throw new Error('上传失败 ' + resp.status + ': ' + t.slice(0, 100)); }
+    if (!resp.ok) throw new Error('上传失败: ' + resp.status);
     const gist = await resp.json();
     localStorage.setItem('sf_gist_id', gist.id);
     return gist.id;
@@ -1777,12 +1777,11 @@ const GistSync = {
 
   async download(gistId) {
     const resp = await fetch('https://api.github.com/gists/' + gistId, { headers: GistSync._headers() });
-    if (!resp.ok) { const t = await resp.text(); throw new Error('下载失败 ' + resp.status + ': ' + t.slice(0, 100)); }
+    if (!resp.ok) throw new Error('下载失败: ' + resp.status);
     const gist = await resp.json();
-    const file = gist.files ? (gist.files['sf-data.txt'] || gist.files['skill-forge-data.json']) : null;
+    const file = gist.files['skill-forge-data.json'];
     if (!file || !file.content) throw new Error('Gist 中没有数据');
-    const json = GistSync._decompress(file.content);
-    return JSON.parse(json);
+    return JSON.parse(file.content);
   },
 };
 
