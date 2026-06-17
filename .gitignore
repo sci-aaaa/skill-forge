@@ -1,0 +1,9 @@
+node_modules/
+.claude/
+.superpowers/
+.vite/
+.wrangler/
+docs/
+*.bak
+package-lock.json
+signaling-worker.js
