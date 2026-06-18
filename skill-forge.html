@@ -3949,7 +3949,11 @@ function SkillTreePage() {
     }),
     className: "text-text-secondary hover:text-white text-lg px-1",
     title: "设置"
-  }, "⚙️"))), skillTrees.length > 1 && /*#__PURE__*/React.createElement("div", {
+  }, "⚙️"), /*#__PURE__*/React.createElement(PreloadButton, {
+    nodes: nodes,
+    dispatch: dispatch,
+    courseId: state.currentCourseId
+  })), skillTrees.length > 1 && /*#__PURE__*/React.createElement("div", {
     className: "flex gap-1 px-3 pb-2 overflow-x-auto",
     style: {
       WebkitOverflowScrolling: 'touch'
