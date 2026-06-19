@@ -417,17 +417,17 @@ body {
 .gacha-card-wrap {
   animation: gacha-card-reveal 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
-.gacha-card-wrap.rarity-red { animation-name: gacha-card-reveal-red; animation-duration: 1.0s; }
-.gacha-card-wrap.rarity-orange { animation-name: gacha-card-reveal-orange; animation-duration: 0.85s; }
-.gacha-card-wrap.rarity-purple { animation-duration: 0.75s; }
-.gacha-card-wrap.staggered.rarity-red {
+.gacha-card-wrap.rarity-red {
   animation-name: gacha-card-reveal-red, gacha-glow-pulse;
   animation-duration: 1.0s, 1.5s;
+  animation-iteration-count: 1, infinite;
 }
-.gacha-card-wrap.staggered.rarity-orange {
+.gacha-card-wrap.rarity-orange {
   animation-name: gacha-card-reveal-orange, gacha-glow-pulse;
   animation-duration: 0.85s, 2s;
+  animation-iteration-count: 1, infinite;
 }
+.gacha-card-wrap.rarity-purple { animation-duration: 0.75s; }
 .gacha-glow { animation: gacha-glow-pulse 2s ease-in-out infinite; }
 .gacha-screen-shake { animation: gacha-shake-screen 0.5s ease-out; }
 .gacha-pull-pulse { animation: gacha-pull-pulse 1s ease-in-out infinite; }
