@@ -5085,6 +5085,7 @@ function ShopPanel({
   const [gachaResults, setGachaResults] = useState([]);
   const [showGachaResult, setShowGachaResult] = useState(false);
   const [gachaAnimState, setGachaAnimState] = useState(0); // 0=idle, 1=pulling, 2=done
+  const [debugMode, setDebugMode] = useState(false);
   const [screenShake, setScreenShake] = useState(false);
   const [pityHit, setPityHit] = useState(false);
   const [allEquip, setAllEquip] = useState([]);
@@ -5121,12 +5122,12 @@ function ShopPanel({
     shoes: '鞋子'
   };
   const handleGacha = async (count) => {
-    const cost = count === 10 ? 9 : count;
-    if (gachaTickets < cost) {
+    const cost = debugMode ? 0 : (count === 10 ? 9 : count);
+    if (gachaTickets < cost && !debugMode) {
       setMsg('抽卡卷不足！');
       return;
     }
-    const newTickets = gachaTickets - cost;
+    const newTickets = debugMode ? gachaTickets : (gachaTickets - cost);
     await db.globalState.put({
       key: 'gachaTickets',
       value: newTickets,
@@ -5175,6 +5176,13 @@ function ShopPanel({
     setPityHit(hasRed);
     setShowGachaResult(true);
     setGachaAnimState(1);
+    // TEST: native DOM red overlay
+    var testDiv = document.createElement('div');
+    testDiv.id = 'gacha-test';
+    testDiv.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;background:red;display:flex;align-items:center;justify-content:center;font-size:48px;color:white';
+    testDiv.textContent = 'RED TEST';
+    document.body.appendChild(testDiv);
+    setTimeout(function() { var d = document.getElementById('gacha-test'); if(d) { d.style.transition='opacity 0.3s'; d.style.opacity='0'; setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 300); } }, 1200);
     setTimeout(() => setGachaAnimState(2), count === 1 ? 1000 : 1500);
     if (hasRed) {
       setScreenShake(true);
@@ -5183,11 +5191,11 @@ function ShopPanel({
   };
 
   const handleBuyTicket = async () => {
-    if (coins < 3000) {
+    if (coins < 3000 && !debugMode) {
       setMsg('金币不足！');
       return;
     }
-    const nc = coins - 3000;
+    const nc = debugMode ? coins : (coins - 3000);
     await db.globalState.put({
       key: 'coins',
       value: nc,
@@ -5267,7 +5275,7 @@ function ShopPanel({
       className: "flex items-center justify-between"
     }, /*#__PURE__*/React.createElement("h2", {
       className: "text-lg font-bold text-amber-400"
-    }, "🏪 商城"), /*#__PURE__*/React.createElement("span", {
+    }, (debugMode ? "🏪 商城[调试]" : "🏪 商城")), /*#__PURE__*/React.createElement("span", {
       className: "text-amber-400 font-bold"
     }, "💰", coins)), /*#__PURE__*/React.createElement("div", {
       className: "flex gap-2"
@@ -5363,8 +5371,8 @@ function ShopPanel({
     }, /*#__PURE__*/React.createElement(RPGButton, {
       variant: "primary",
       onClick: async () => {
-        if (coins < 3000) return setMsg('金币不足！');
-        const nc = coins - 3000;
+        if (coins < 3000 && !debugMode) return setMsg('金币不足！');
+        const nc = debugMode ? coins : (coins - 3000);
         await db.globalState.put({
           key: 'coins',
           value: nc,
@@ -5403,8 +5411,8 @@ function ShopPanel({
     }, /*#__PURE__*/React.createElement(RPGButton, {
       variant: "primary",
       onClick: async () => {
-        if (coins < 3000) return setMsg('金币不足！');
-        const nc = coins - 3000;
+        if (coins < 3000 && !debugMode) return setMsg('金币不足！');
+        const nc = debugMode ? coins : (coins - 3000);
         await db.globalState.put({
           key: 'coins',
           value: nc,
@@ -5486,7 +5494,7 @@ function ShopPanel({
     className: "flex items-center justify-between px-6 py-4 bg-bg-panel/80 border-b border-slate-700 shrink-0"
   }, /*#__PURE__*/React.createElement("h2", {
     className: "text-xl font-bold text-amber-400"
-  }, "🏪 商城"), /*#__PURE__*/React.createElement("div", {
+  }, (debugMode ? "🏪 商城[调试]" : "🏪 商城")), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-3"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-amber-400 font-bold"
@@ -5589,8 +5597,8 @@ function ShopPanel({
   }, /*#__PURE__*/React.createElement(RPGButton, {
     variant: "primary",
     onClick: async () => {
-      if (coins < 3000) return setMsg('金币不足！');
-      const nc = coins - 3000;
+      if (coins < 3000 && !debugMode) return setMsg('金币不足！');
+      const nc = debugMode ? coins : (coins - 3000);
       await db.globalState.put({
         key: 'coins',
         value: nc,
@@ -5629,8 +5637,8 @@ function ShopPanel({
   }, /*#__PURE__*/React.createElement(RPGButton, {
     variant: "primary",
     onClick: async () => {
-      if (coins < 3000) return setMsg('金币不足！');
-      const nc = coins - 3000;
+      if (coins < 3000 && !debugMode) return setMsg('金币不足！');
+      const nc = debugMode ? coins : (coins - 3000);
       await db.globalState.put({
         key: 'coins',
         value: nc,
