@@ -5811,7 +5811,7 @@ function BossPanel({
         className: "text-text-secondary text-xs"
       }, "⚡门槛 ", scaled.scaledPower), /*#__PURE__*/React.createElement("p", {
         className: "text-text-secondary text-xs"
-      }, RARITY_LABELS[boss.equipRarity], "装备 + 💰", Math.floor(boss.coins * (1 + scaled.defeatCount * 0.2)), " + ⭐", boss.exp, "EXP"))), /*#__PURE__*/React.createElement("div", {
+      }, "🎫×5 + 💰", Math.floor(boss.coins * (1 + scaled.defeatCount * 0.2)), " + ⭐", boss.exp, "EXP"))), /*#__PURE__*/React.createElement("div", {
         className: "flex gap-2 justify-end"
       }, /*#__PURE__*/React.createElement(RPGButton, {
         variant: "danger",
@@ -5858,7 +5858,7 @@ function BossPanel({
       className: "text-text-secondary text-xs"
     }, "❤️ HP ", scaled.scaledHP, " · ⚔️ ATK ", scaled.scaledATK, " · ⚡门槛 ", scaled.scaledPower), /*#__PURE__*/React.createElement("p", {
       className: "text-text-secondary text-xs"
-    }, RARITY_LABELS[boss.equipRarity], "装备 + 💰", Math.floor(boss.coins * (1 + scaled.defeatCount * 0.2)), " + ⭐", boss.exp, "EXP"), /*#__PURE__*/React.createElement("p", {
+    }, "🎫×5 + 💰", Math.floor(boss.coins * (1 + scaled.defeatCount * 0.2)), " + ⭐", boss.exp, "EXP"), /*#__PURE__*/React.createElement("p", {
       className: "text-text-secondary text-[10px]"
     }, "技能：", boss.skills.join('、')))), /*#__PURE__*/React.createElement("div", {
       className: "flex flex-col gap-1 items-end"
@@ -6072,14 +6072,6 @@ function BossBattle({
 
     // Create treasure chest (requires node completion to open)
     const bCoins = Math.floor(boss.coins * (1 + count * 0.2));
-    const bSlot = SLOTS[Math.floor(Math.random() * SLOTS.length)];
-    const bDropR = count >= 2 ? 'red' : count >= 1 ? 'orange' : boss.equipRarity;
-    const {
-      name: bn,
-      icon: bi,
-      stats: bstats,
-      power: bpwr
-    } = generateEquipment(bSlot, bDropR);
     const earnedExp = boss.exp || 300;
     const chest = {
       id: crypto.randomUUID(),
@@ -6087,12 +6079,7 @@ function BossBattle({
       bossIcon: boss.icon,
       coins: bCoins,
       exp: earnedExp,
-      equipSlot: bSlot,
-      equipName: bn,
-      equipIcon: bi,
-      equipRarity: bDropR,
-      equipStats: bstats,
-      equipPower: bpwr,
+      tickets: 5,
       createdAt: Date.now()
     };
     const chests = [...((await db.globalState.get('pendingChests'))?.value || []), chest];
@@ -6110,7 +6097,7 @@ function BossBattle({
     });
     dispatch({
       type: 'ADD_LOG',
-      payload: '⚔️ 击败Boss「' + boss.name + '」！📦 宝箱已保存，通关节点后开启（' + RARITY_LABELS[bDropR] + '装备 + 💰' + bCoins + ' + ⭐' + earnedExp + 'EXP）'
+      payload: '⚔️ 击败Boss「' + boss.name + '」！📦 宝箱已保存，通关节点后开启（🎫×5 + 💰' + bCoins + ' + ⭐' + earnedExp + 'EXP）'
     });
   };
   const handleReturn = () => {
