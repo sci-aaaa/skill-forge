@@ -4,6 +4,7 @@ node_modules/
 .vite/
 .wrangler/
 docs/
+.worktrees/
 *.bak
 package-lock.json
 signaling-worker.js
