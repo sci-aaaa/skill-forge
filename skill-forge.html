@@ -5176,14 +5176,24 @@ function ShopPanel({
     setPityHit(hasRed);
     setShowGachaResult(true);
     setGachaAnimState(1);
-    // TEST: native DOM red overlay
-    var testDiv = document.createElement('div');
-    testDiv.id = 'gacha-test';
-    testDiv.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;background:red;display:flex;align-items:center;justify-content:center;font-size:48px;color:white';
-    testDiv.textContent = 'RED TEST';
-    document.body.appendChild(testDiv);
-    setTimeout(function() { var d = document.getElementById('gacha-test'); if(d) { d.style.transition='opacity 0.3s'; d.style.opacity='0'; setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 300); } }, 1200);
-    setTimeout(() => setGachaAnimState(2), count === 1 ? 1000 : 1500);
+
+    // Native DOM pulling overlay
+    var overlay = document.createElement('div');
+    overlay.className = 'gacha-overlay';
+    overlay.innerHTML = '<div style=\"display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:-40px\">' +
+      '<div class=\"gacha-pull-pulse\" style=\"width:140px;height:180px;background:linear-gradient(135deg,#2A1A2A,#3A2A4A);border-radius:16px;border:2px solid rgba(212,168,67,0.5);display:flex;align-items:center;justify-content:center\">' +
+      '<span style=\"font-size:60px\">🎫</span></div>' +
+      '<p class=\"text-amber-400 text-xl font-bold rpg-text gacha-pull-pulse\" style=\"margin:0\">抽卡中...</p>' +
+      (count > 1 ? '<p class=\"text-text-secondary text-sm\" style=\"margin:0\">×' + count + ' 连抽准备中</p>' : '') +
+      '</div>';
+    document.body.appendChild(overlay);
+
+    // Remove overlay when cards reveal
+    setTimeout(function() {
+      setGachaAnimState(2);
+      overlay.style.animation = 'gacha-overlay-out 0.25s ease-in both';
+      setTimeout(function() { if(overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 250);
+    }, count === 1 ? 1000 : 1500);
     if (hasRed) {
       setScreenShake(true);
       setTimeout(() => setScreenShake(false), 600);
@@ -5277,7 +5287,7 @@ function ShopPanel({
       className: "text-lg font-bold text-amber-400"
     }, (debugMode ? "🏪 商城[调试]" : "🏪 商城")), /*#__PURE__*/React.createElement("span", {
       className: "text-amber-400 font-bold"
-    }, "💰", coins)), /*#__PURE__*/React.createElement("div", {
+    }, "💰", coins), /*#__PURE__*/React.createElement("button", { onClick: () => setDebugMode(!debugMode), className: 'ml-1 px-2 py-0.5 rounded text-xs ' + (debugMode ? 'bg-green-700 text-green-300' : 'bg-slate-700 text-text-secondary'), title: '调试模式' }, debugMode ? '🐛调试' : '🐛')), /*#__PURE__*/React.createElement("div", {
       className: "flex gap-2"
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => setTab('gacha'),
@@ -5498,7 +5508,7 @@ function ShopPanel({
     className: "flex items-center gap-3"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-amber-400 font-bold"
-  }, "💰", coins), /*#__PURE__*/React.createElement(RPGButton, {
+  }, "💰", coins), /*#__PURE__*/React.createElement("button", { onClick: () => setDebugMode(!debugMode), className: 'ml-2 px-2 py-0.5 rounded text-xs ' + (debugMode ? 'bg-green-700 text-green-300' : 'bg-slate-700 text-text-secondary'), title: '调试模式' }, debugMode ? '🐛调试' : '🐛'), /*#__PURE__*/React.createElement(RPGButton, {
     variant: "secondary",
     onClick: onClose
   }, "✕"))), /*#__PURE__*/React.createElement("div", {
