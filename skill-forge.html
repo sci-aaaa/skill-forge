@@ -361,6 +361,80 @@ body {
 @keyframes particleFly {
   0% { transform: translate(0, 0) scale(1); opacity: 1; }
   100% { transform: translate(var(--px), var(--py)) scale(0); opacity: 0; }
+
+/* ========== GACHA ANIMATIONS ========== */
+@keyframes gacha-overlay-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes gacha-card-enter {
+  0% { transform: rotateY(180deg) scale(0.3) translateY(80px); opacity: 0; filter: brightness(3); }
+  40% { transform: rotateY(0deg) scale(1.15) translateY(-10px); opacity: 1; filter: brightness(1.5); }
+  70% { transform: rotateY(0deg) scale(0.95) translateY(2px); filter: brightness(0.9); }
+  100% { transform: rotateY(0deg) scale(1) translateY(0); opacity: 1; filter: brightness(1); }
+}
+@keyframes gacha-card-enter-red {
+  0% { transform: rotateY(180deg) scale(0.2) translateY(120px); opacity: 0; filter: brightness(5) saturate(3); }
+  30% { transform: rotateY(0deg) scale(1.3) translateY(-20px); opacity: 1; filter: brightness(2) saturate(2); }
+  50% { transform: rotateY(0deg) scale(1.1) translateY(-5px); filter: brightness(1.3); }
+  100% { transform: rotateY(0deg) scale(1) translateY(0); opacity: 1; filter: brightness(1); }
+}
+@keyframes gacha-card-enter-orange {
+  0% { transform: rotateY(180deg) scale(0.25) translateY(100px); opacity: 0; filter: brightness(4) saturate(2.5); }
+  35% { transform: rotateY(0deg) scale(1.2) translateY(-15px); opacity: 1; filter: brightness(1.8) saturate(1.8); }
+  55% { transform: rotateY(0deg) scale(1.05) translateY(-3px); filter: brightness(1.2); }
+  100% { transform: rotateY(0deg) scale(1) translateY(0); opacity: 1; filter: brightness(1); }
+}
+@keyframes gacha-glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px var(--glow-color, rgba(255,200,50,0.4)), 0 0 60px var(--glow-color, rgba(255,200,50,0.15)); }
+  50% { box-shadow: 0 0 40px var(--glow-color, rgba(255,200,50,0.7)), 0 0 100px var(--glow-color, rgba(255,200,50,0.3)), 0 0 160px var(--glow-color, rgba(255,200,50,0.1)); }
+}
+@keyframes gacha-shake-screen {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-8px, 4px); }
+  30% { transform: translate(8px, -4px); }
+  50% { transform: translate(-4px, 8px); }
+  70% { transform: translate(4px, -8px); }
+  90% { transform: translate(-2px, 2px); }
+}
+@keyframes gacha-10pull-reveal {
+  0% { transform: translateX(-30px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes gacha-pull-spin {
+  0% { transform: rotateY(0deg) scale(1); }
+  50% { transform: rotateY(360deg) scale(1.1); }
+  100% { transform: rotateY(720deg) scale(1); }
+}
+.gacha-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: radial-gradient(ellipse at center, rgba(10,5,30,0.95) 0%, rgba(0,0,0,0.98) 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  animation: gacha-overlay-in 0.3s ease-out;
+}
+.gacha-card-wrap {
+  perspective: 800px;
+  animation: gacha-card-enter 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.gacha-card-wrap.rarity-red { animation-name: gacha-card-enter-red; animation-duration: 0.9s; }
+.gacha-card-wrap.rarity-orange { animation-name: gacha-card-enter-orange; animation-duration: 0.8s; }
+.gacha-card-wrap.rarity-purple { animation-duration: 0.75s; }
+.gacha-card-wrap.staggered {
+  animation-name: gacha-10pull-reveal;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+}
+.gacha-card-wrap.staggered.rarity-red {
+  animation-name: gacha-10pull-reveal, gacha-glow-pulse;
+  animation-duration: 0.5s, 1.5s;
+}
+.gacha-card-wrap.staggered.rarity-orange {
+  animation-name: gacha-10pull-reveal, gacha-glow-pulse;
+  animation-duration: 0.5s, 2s;
+}
+.gacha-glow { animation: gacha-glow-pulse 2s ease-in-out infinite; }
+.gacha-screen-shake { animation: gacha-shake-screen 0.6s ease-out; }
+.gacha-pull-anim {
+  animation: gacha-pull-spin 0.6s ease-in-out;
+}
+
 }
 .animate-float { animation: float 3s ease-in-out infinite; }
 .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
@@ -5011,6 +5085,9 @@ function ShopPanel({
   const [dropCount, setDropCount] = useState(0);
   const [gachaResults, setGachaResults] = useState([]);
   const [showGachaResult, setShowGachaResult] = useState(false);
+  const [gachaAnimState, setGachaAnimState] = useState(0); // 0=idle, 1=pulling, 2=done
+  const [screenShake, setScreenShake] = useState(false);
+  const [pityHit, setPityHit] = useState(false);
   const [allEquip, setAllEquip] = useState([]);
   const [equipped, setEquipped] = useState({});
   const [msg, setMsg] = useState('');
@@ -5092,9 +5169,18 @@ function ShopPanel({
     setDropCount(dc);
 
     setGachaResults(results);
-    setShowGachaResult(true);
-    setMsg('');
+    setMsg("")
     refresh();
+    // Animate: show pulling state first
+    const hasRed = results.some(eq => eq.rarity === "red");
+    setPityHit(hasRed);
+    setShowGachaResult(true);
+    setGachaAnimState(1);
+    setTimeout(() => setGachaAnimState(2), count === 1 ? 600 : 1000);
+    if (hasRed) {
+      setScreenShake(true);
+      setTimeout(() => setScreenShake(false), 600);
+    }
   };
 
   const handleBuyTicket = async () => {
@@ -5244,7 +5330,7 @@ function ShopPanel({
       className: "text-amber-400 font-bold text-center"
     }, "🎴 抽卡结果"), gachaResults.map((eq, i) => /*#__PURE__*/React.createElement("div", {
       key: i,
-      className: `flex items-center gap-3 bg-bg-panel rounded-lg p-3 border ${eq.rarity === 'red' ? 'border-red-600 eq-red' : eq.rarity === 'orange' ? 'border-orange-600 eq-orange' : 'border-slate-700'}`
+      className: 'gacha-card-wrap flex items-center gap-3 bg-bg-panel rounded-lg p-3 border ' + (eq.rarity === 'red' ? 'border-red-600 eq-red gacha-glow' : eq.rarity === 'orange' ? 'border-orange-600 eq-orange gacha-glow' : 'border-slate-700') + (eq.rarity === 'red' ? ' rarity-red' : eq.rarity === 'orange' ? ' rarity-orange' : '') + (gachaResults.length > 1 ? ' staggered' : '')
     }, /*#__PURE__*/React.createElement("span", {
       className: "text-2xl"
     }, eq.icon), /*#__PURE__*/React.createElement("div", {
@@ -5469,7 +5555,7 @@ function ShopPanel({
     className: "text-amber-400 font-bold text-center"
   }, "🎴 抽卡结果"), gachaResults.map((eq, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
-    className: `flex items-center gap-3 bg-bg-panel rounded-lg p-3 border ${eq.rarity === 'red' ? 'border-red-600 eq-red' : eq.rarity === 'orange' ? 'border-orange-600 eq-orange' : 'border-slate-700'}`
+    className: 'gacha-card-wrap flex items-center gap-3 bg-bg-panel rounded-lg p-3 border ' + (eq.rarity === 'red' ? 'border-red-600 eq-red gacha-glow' : eq.rarity === 'orange' ? 'border-orange-600 eq-orange gacha-glow' : 'border-slate-700') + (eq.rarity === 'red' ? ' rarity-red' : eq.rarity === 'orange' ? ' rarity-orange' : '') + (gachaResults.length > 1 ? ' staggered' : '')
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-2xl"
   }, eq.icon), /*#__PURE__*/React.createElement("div", {
