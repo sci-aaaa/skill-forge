@@ -5178,14 +5178,39 @@ function ShopPanel({
     setShowGachaResult(true);
     setGachaAnimState(1);
 
-    // Native DOM pulling overlay (inline styles - proven to work)
+    // Helper: spawn particles at a position
+    var spawnParticles = function(x, y, color, count) {
+      for (var p = 0; p < count; p++) {
+        var particle = document.createElement('div');
+        var angle = Math.random() * Math.PI * 2;
+        var distance = 60 + Math.random() * 120;
+        var size = 3 + Math.random() * 6;
+        particle.style.cssText = 'position:fixed;left:' + x + 'px;top:' + y + 'px;width:' + size + 'px;height:' + size + 'px;background:' + color + ';border-radius:50%;z-index:99999;pointer-events:none';
+        document.body.appendChild(particle);
+        particle.animate([
+          { transform: 'translate(0,0) scale(1)', opacity: 1 },
+          { transform: 'translate(' + (Math.cos(angle) * distance) + 'px,' + (Math.sin(angle) * distance) + 'px) scale(0)', opacity: 0 }
+        ], { duration: 600 + Math.random() * 400, easing: 'cubic-bezier(0,0.8,0.2,1)', fill: 'forwards' }).onfinish = function() { particle.remove(); };
+      }
+    };
+
+    // Native DOM pulling overlay
     var overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;background:radial-gradient(ellipse at center, rgba(10,5,30,0.97) 0%, rgba(0,0,0,0.99) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center';
     var inner = document.createElement('div');
     inner.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:16px';
     var card = document.createElement('div');
-    card.style.cssText = 'width:140px;height:180px;background:linear-gradient(135deg,#2A1A2A,#3A2A4A);border-radius:16px;border:2px solid rgba(212,168,67,0.5);display:flex;align-items:center;justify-content:center;animation:gacha-pull-pulse 1s ease-in-out infinite';
+    card.style.cssText = 'width:140px;height:180px;background:linear-gradient(135deg,#2A1A2A,#3A2A4A);border-radius:16px;border:2px solid rgba(212,168,67,0.5);display:flex;align-items:center;justify-content:center;animation:gacha-pull-pulse 1s ease-in-out infinite;position:relative;overflow:visible';
     card.innerHTML = '<span style=\"font-size:60px\">🎫</span>';
+    // Ring pulse around card
+    var ring = document.createElement('div');
+    ring.style.cssText = 'position:absolute;inset:-8px;border-radius:20px;border:2px solid rgba(212,168,67,0.3);pointer-events:none';
+    card.appendChild(ring);
+    ring.animate([
+      { transform: 'scale(1)', opacity: 0.6, borderColor: 'rgba(212,168,67,0.4)' },
+      { transform: 'scale(1.15)', opacity: 0, borderColor: 'rgba(212,168,67,0)' }
+    ], { duration: 800, iterations: Infinity, easing: 'ease-out' });
+
     var text = document.createElement('p');
     text.style.cssText = 'color:#D4A843;font-size:20px;font-weight:bold;font-family:Cinzel,Georgia,serif;margin:0;animation:gacha-pull-pulse 1s ease-in-out infinite';
     text.textContent = '抽卡中...';
@@ -5200,67 +5225,115 @@ function ShopPanel({
     overlay.appendChild(inner);
     document.body.appendChild(overlay);
 
-    // Remove overlay when cards reveal, then animate cards with Web Animations API
+    // Spawn ambient sparkles during pull
+    var sparkleInterval = setInterval(function() {
+      spawnParticles(window.innerWidth / 2 + (Math.random() - 0.5) * 200, window.innerHeight / 2 + (Math.random() - 0.5) * 200, '#D4A843', 2);
+    }, 150);
+
+    // Remove overlay when cards reveal, then animate
     setTimeout(function() {
+      clearInterval(sparkleInterval);
       setGachaAnimState(2);
       overlay.style.transition = 'opacity 0.25s';
       overlay.style.opacity = '0';
+      // Screen flash for rare pulls
+      if (hasRed || results.some(function(eq) { return eq.rarity === 'orange'; })) {
+        var flash = document.createElement('div');
+        flash.style.cssText = 'position:fixed;inset:0;z-index:99998;pointer-events:none;background:' + (hasRed ? 'radial-gradient(circle, rgba(255,50,50,0.4), transparent 70%)' : 'radial-gradient(circle, rgba(255,150,30,0.3), transparent 70%)');
+        document.body.appendChild(flash);
+        flash.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, fill: 'forwards' }).onfinish = function() { flash.remove(); };
+      }
       setTimeout(function() { if(overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 250);
 
-      // Animate result cards after React renders them
+      // Animate result cards
       setTimeout(function() {
         var cards = document.querySelectorAll('.gacha-card-wrap');
         cards.forEach(function(card, i) {
           var isRed = card.classList.contains('rarity-red');
           var isOrange = card.classList.contains('rarity-orange');
+          var rect = card.getBoundingClientRect();
+          var cx = rect.left + rect.width / 2;
+          var cy = rect.top + rect.height / 2;
+
+          // Particle burst
+          if (isRed) {
+            spawnParticles(cx, cy, '#ff2244', 20);
+            spawnParticles(cx, cy, '#ffcc00', 12);
+            // Rainbow ring
+            var rainbowRing = document.createElement('div');
+            rainbowRing.style.cssText = 'position:fixed;left:' + (cx - 60) + 'px;top:' + (cy - 40) + 'px;width:120px;height:80px;border-radius:50%;border:3px solid transparent;pointer-events:none;z-index:99997';
+            document.body.appendChild(rainbowRing);
+            rainbowRing.animate([
+              { transform: 'scale(0.5)', borderColor: '#ff0000', opacity: 1 },
+              { transform: 'scale(1.5)', borderColor: '#ffcc00', opacity: 0.7, offset: 0.3 },
+              { transform: 'scale(2)', borderColor: '#ff00ff', opacity: 0.3, offset: 0.6 },
+              { transform: 'scale(2.5)', borderColor: '#00ccff', opacity: 0 }
+            ], { duration: 800, fill: 'forwards' }).onfinish = function() { rainbowRing.remove(); };
+          } else if (isOrange) {
+            spawnParticles(cx, cy, '#ff7700', 12);
+            spawnParticles(cx, cy, '#ffcc00', 6);
+          } else if (i === 0 && cards.length === 1) {
+            spawnParticles(cx, cy, '#D4A843', 4);
+          }
+
+          // Card entrance animation
           var keyframes;
           if (isRed) {
             keyframes = [
-              { opacity: 0, transform: 'translateY(100px) scale(0.6)', filter: 'brightness(3) saturate(2)' },
-              { opacity: 1, transform: 'translateY(-12px) scale(1.15)', filter: 'brightness(2) saturate(2)', offset: 0.25 },
-              { opacity: 1, transform: 'translateY(2px) scale(0.96)', filter: 'brightness(1)', offset: 0.5 },
-              { opacity: 1, transform: 'translateY(-3px) scale(1.03)', filter: 'brightness(1)', offset: 0.75 },
-              { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'brightness(1)' }
+              { opacity: 0, transform: 'translateY(100px) scale(0.5) rotate(-5deg)', filter: 'brightness(5) saturate(3)' },
+              { opacity: 1, transform: 'translateY(-15px) scale(1.2) rotate(2deg)', filter: 'brightness(2.5) saturate(2.5)', offset: 0.2 },
+              { opacity: 1, transform: 'translateY(2px) scale(0.94) rotate(-1deg)', filter: 'brightness(1.2)', offset: 0.45 },
+              { opacity: 1, transform: 'translateY(-4px) scale(1.04) rotate(0deg)', filter: 'brightness(1)', offset: 0.7 },
+              { opacity: 1, transform: 'translateY(0) scale(1) rotate(0deg)', filter: 'brightness(1)' }
             ];
           } else if (isOrange) {
             keyframes = [
-              { opacity: 0, transform: 'translateY(80px) scale(0.7)', filter: 'brightness(2.5) saturate(2)' },
-              { opacity: 1, transform: 'translateY(-10px) scale(1.1)', filter: 'brightness(1.8) saturate(1.8)', offset: 0.3 },
-              { opacity: 1, transform: 'translateY(2px) scale(0.97)', filter: 'brightness(1)', offset: 0.55 },
-              { opacity: 1, transform: 'translateY(-2px) scale(1.02)', filter: 'brightness(1)', offset: 0.8 },
-              { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'brightness(1)' }
+              { opacity: 0, transform: 'translateY(80px) scale(0.6) rotate(-3deg)', filter: 'brightness(3.5) saturate(2.5)' },
+              { opacity: 1, transform: 'translateY(-10px) scale(1.12) rotate(1deg)', filter: 'brightness(2) saturate(2)', offset: 0.25 },
+              { opacity: 1, transform: 'translateY(2px) scale(0.96) rotate(0deg)', filter: 'brightness(1)', offset: 0.5 },
+              { opacity: 1, transform: 'translateY(-2px) scale(1.02) rotate(0deg)', filter: 'brightness(1)', offset: 0.75 },
+              { opacity: 1, transform: 'translateY(0) scale(1) rotate(0deg)', filter: 'brightness(1)' }
             ];
           } else {
             keyframes = [
-              { opacity: 0, transform: 'translateY(60px) scale(0.85)' },
-              { opacity: 0.7, transform: 'translateY(-6px) scale(1.04)', offset: 0.5 },
+              { opacity: 0, transform: 'translateY(50px) scale(0.88)' },
+              { opacity: 0.8, transform: 'translateY(-5px) scale(1.03)', offset: 0.5 },
               { opacity: 1, transform: 'translateY(2px) scale(0.98)', offset: 0.75 },
               { opacity: 1, transform: 'translateY(0) scale(1)' }
             ];
           }
           card.animate(keyframes, {
-            duration: isRed ? 1000 : isOrange ? 850 : 700,
-            delay: i * 300,
+            duration: isRed ? 1100 : isOrange ? 900 : 650,
+            delay: i * 280,
             easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
             fill: 'both'
           });
+
+          // Rare glow pulse after entrance
+          if (isRed || isOrange) {
+            var glowColor = isRed ? 'rgba(255,34,68,0.7)' : 'rgba(255,119,0,0.55)';
+            var glowColorFaint = isRed ? 'rgba(255,34,68,0.08)' : 'rgba(255,119,0,0.06)';
+            setTimeout(function() {
+              card.animate([
+                { boxShadow: '0 0 15px ' + glowColor + ', 0 0 40px ' + glowColorFaint },
+                { boxShadow: '0 0 35px ' + glowColor + ', 0 0 80px ' + glowColor + ', 0 0 120px ' + glowColorFaint },
+                { boxShadow: '0 0 15px ' + glowColor + ', 0 0 40px ' + glowColorFaint }
+              ], { duration: isRed ? 1800 : 2200, iterations: Infinity, easing: 'ease-in-out' });
+            }, (isRed ? 1100 : 900) + i * 280);
+          }
         });
 
-        // Glow pulse for rare cards after entrance
-        var rareCards = document.querySelectorAll('.gacha-card-wrap.rarity-red, .gacha-card-wrap.rarity-orange');
-        rareCards.forEach(function(card) {
-          var glowColor = card.classList.contains('rarity-red') ? 'rgba(255,34,68,0.6)' : 'rgba(255,119,0,0.5)';
-          card.animate([
-            { boxShadow: '0 0 15px ' + glowColor + ', 0 0 45px ' + glowColor.replace('0.6','0.1').replace('0.5','0.1') },
-            { boxShadow: '0 0 35px ' + glowColor + ', 0 0 80px ' + glowColor.replace('0.6','0.25').replace('0.5','0.2') + ', 0 0 120px ' + glowColor.replace('0.6','0.08').replace('0.5','0.08') },
-            { boxShadow: '0 0 15px ' + glowColor + ', 0 0 45px ' + glowColor.replace('0.6','0.1').replace('0.5','0.1') }
-          ], {
-            duration: 2000,
-            delay: (isRed ? 1000 : 850) + parseInt(card.style.animationDelay || '0') * 1000,
-            iterations: Infinity,
-            easing: 'ease-in-out'
-          });
-        });
+        // Screen shake for red pull
+        if (hasRed) {
+          document.body.animate([
+            { transform: 'translate(0,0)' },
+            { transform: 'translate(-8px,4px)', offset: 0.1 },
+            { transform: 'translate(8px,-4px)', offset: 0.3 },
+            { transform: 'translate(-4px,8px)', offset: 0.5 },
+            { transform: 'translate(4px,-8px)', offset: 0.7 },
+            { transform: 'translate(0,0)' }
+          ], { duration: 500, easing: 'ease-out' });
+        }
       }, 100);
     }, count === 1 ? 1000 : 1500);
     if (hasRed) {
