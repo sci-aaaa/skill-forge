@@ -6885,12 +6885,14 @@ function SyncPanel() {
       if (connected) { setWaiting(false); setLoading(false); }
     };
     SyncManager.onDataReceived = async () => {
-      const [courses, coins, totalCoinsEarned, chestKeys, enhanceScrolls, exp, level, baseStats, questProgress, questCompleted, activeQuests] = await Promise.all([
+      const [courses, coins, totalCoinsEarned, chestKeys, enhanceScrolls, gachaTickets, dropCount, exp, level, baseStats, questProgress, questCompleted, activeQuests] = await Promise.all([
         db.courses.orderBy('createdAt').reverse().toArray(),
         db.globalState.get('coins').then(e => e?.value || 0),
         db.globalState.get('totalCoinsEarned').then(e => e?.value || 0),
         db.globalState.get('chestKeys').then(e => e?.value || 0),
         db.globalState.get('enhanceScrolls').then(e => e?.value || 0),
+        db.globalState.get('gachaTickets').then(e => e?.value || 0),
+        db.globalState.get('dropCount').then(e => e?.value || 0),
         db.globalState.get('exp').then(e => e?.value || 0),
         db.globalState.get('level').then(e => e?.value || 1),
         db.globalState.get('baseStats').then(e => e?.value || { int: 5, mem: 5, foc: 5, end: 5 }),
@@ -6898,7 +6900,7 @@ function SyncPanel() {
         db.globalState.get('questCompleted').then(e => e?.value || []),
         db.globalState.get('activeQuests').then(e => e?.value),
       ]);
-      dispatch({ type: 'SET', payload: { courses, coins, totalCoinsEarned, chestKeys, enhanceScrolls, exp, level, baseStats, questProgress, questCompleted, activeQuests } });
+      dispatch({ type: 'SET', payload: { courses, coins, totalCoinsEarned, chestKeys, enhanceScrolls, gachaTickets, dropCount, exp, level, baseStats, questProgress, questCompleted, activeQuests } });
       dispatch({ type: 'ADD_LOG', payload: '🔄 数据已同步！' });
     };
     return () => { SyncManager.onStatusChange = null; SyncManager.onDataReceived = null; };
@@ -7032,6 +7034,18 @@ function App() {
       type: 'SET',
       payload: {
         enhanceScrolls: e?.value || 0
+      }
+    }));
+    db.globalState.get('gachaTickets').then(e => dispatch({
+      type: 'SET',
+      payload: {
+        gachaTickets: e?.value || 0
+      }
+    }));
+    db.globalState.get('dropCount').then(e => dispatch({
+      type: 'SET',
+      payload: {
+        dropCount: e?.value || 0
       }
     }));
     ['exp', 'level', 'baseStats', 'questProgress', 'questCompleted'].forEach(k => {
