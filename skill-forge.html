@@ -365,24 +365,27 @@ body {
 /* ========== GACHA ANIMATIONS ========== */
 @keyframes gacha-overlay-in { 0% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes gacha-card-enter {
-  0% { transform: scale(0.3) translateY(60px); opacity: 0; filter: brightness(2.5); }
-  50% { transform: scale(1.08) translateY(-5px); opacity: 1; filter: brightness(1.3); }
-  75% { transform: scale(0.96) translateY(2px); filter: brightness(0.95); }
-  100% { transform: scale(1) translateY(0); opacity: 1; filter: brightness(1); }
+  0% { transform: scale(0) translateY(100px) rotate(-15deg); opacity: 0; filter: brightness(10); background: #ffd700; }
+  30% { transform: scale(1.3) translateY(-15px) rotate(3deg); opacity: 1; filter: brightness(2); background: #ffd700; }
+  60% { transform: scale(0.9) translateY(5px) rotate(-1deg); filter: brightness(0.8); background: transparent; }
+  80% { transform: scale(1.05) translateY(-2px) rotate(0deg); filter: brightness(1.1); background: transparent; }
+  100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; filter: brightness(1); background: transparent; }
 }
 @keyframes gacha-card-enter-red {
-  0% { transform: scale(0.1) translateY(100px); opacity: 0; filter: brightness(5) saturate(3); }
-  25% { transform: scale(1.25) translateY(-15px); opacity: 1; filter: brightness(2.5) saturate(2.5); }
-  45% { transform: scale(1.08) translateY(-5px); filter: brightness(1.5) saturate(1.5); }
-  65% { transform: scale(0.95) translateY(2px); filter: brightness(1); }
-  100% { transform: scale(1) translateY(0); opacity: 1; filter: brightness(1); box-shadow: 0 0 30px rgba(255,34,68,0.8), 0 0 80px rgba(255,34,68,0.3); }
+  0% { transform: scale(0) translateY(150px) rotate(-20deg); opacity: 0; filter: brightness(15) saturate(5); background: #ff0000; box-shadow: 0 0 100px rgba(255,0,0,0.9); }
+  20% { transform: scale(1.5) translateY(-25px) rotate(5deg); opacity: 1; filter: brightness(3) saturate(3); background: #ff0000; box-shadow: 0 0 60px rgba(255,0,0,0.7); }
+  45% { transform: scale(1.1) translateY(-8px) rotate(-2deg); filter: brightness(1.5) saturate(1.8); background: rgba(255,0,0,0.3); }
+  65% { transform: scale(0.92) translateY(4px) rotate(1deg); filter: brightness(0.9); background: transparent; }
+  80% { transform: scale(1.06) translateY(-3px) rotate(0deg); filter: brightness(1.2); background: transparent; }
+  100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; filter: brightness(1); background: transparent; box-shadow: 0 0 30px rgba(255,34,68,0.6); }
 }
 @keyframes gacha-card-enter-orange {
-  0% { transform: scale(0.15) translateY(80px); opacity: 0; filter: brightness(4) saturate(2.5); }
-  30% { transform: scale(1.2) translateY(-12px); opacity: 1; filter: brightness(2) saturate(2); }
-  50% { transform: scale(1.05) translateY(-3px); filter: brightness(1.3) saturate(1.3); }
-  70% { transform: scale(0.97) translateY(2px); filter: brightness(1); }
-  100% { transform: scale(1) translateY(0); opacity: 1; filter: brightness(1); box-shadow: 0 0 25px rgba(255,119,0,0.7), 0 0 60px rgba(255,119,0,0.25); }
+  0% { transform: scale(0) translateY(120px) rotate(-18deg); opacity: 0; filter: brightness(12) saturate(4); background: #ff7700; box-shadow: 0 0 80px rgba(255,119,0,0.8); }
+  25% { transform: scale(1.4) translateY(-20px) rotate(4deg); opacity: 1; filter: brightness(2.5) saturate(2.5); background: #ff7700; box-shadow: 0 0 50px rgba(255,119,0,0.6); }
+  50% { transform: scale(1.05) translateY(-5px) rotate(-1deg); filter: brightness(1.3) saturate(1.5); background: rgba(255,119,0,0.2); }
+  70% { transform: scale(0.94) translateY(3px) rotate(1deg); filter: brightness(0.9); background: transparent; }
+  85% { transform: scale(1.04) translateY(-2px) rotate(0deg); filter: brightness(1.1); background: transparent; }
+  100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; filter: brightness(1); background: transparent; box-shadow: 0 0 25px rgba(255,119,0,0.5); }
 }
 @keyframes gacha-glow-pulse {
   0%, 100% { box-shadow: 0 0 20px var(--glow-color, rgba(255,200,50,0.4)), 0 0 60px var(--glow-color, rgba(255,200,50,0.15)); }
@@ -412,15 +415,15 @@ body {
   animation: gacha-overlay-in 0.3s ease-out;
 }
 .gacha-card-wrap {
-  animation: gacha-card-enter 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: gacha-card-enter 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   will-change: transform, opacity;
 }
-.gacha-card-wrap.rarity-red { animation-name: gacha-card-enter-red; animation-duration: 0.9s; }
-.gacha-card-wrap.rarity-orange { animation-name: gacha-card-enter-orange; animation-duration: 0.8s; }
-.gacha-card-wrap.rarity-purple { animation-duration: 0.75s; }
+.gacha-card-wrap.rarity-red { animation-name: gacha-card-enter-red; animation-duration: 1.5s; }
+.gacha-card-wrap.rarity-orange { animation-name: gacha-card-enter-orange; animation-duration: 1.3s; }
+.gacha-card-wrap.rarity-purple { animation-duration: 1.0s; }
 .gacha-card-wrap.staggered {
   animation-name: gacha-10pull-reveal;
-  animation-duration: 0.5s;
+  animation-duration: 0.6s;
   animation-timing-function: ease-out;
 }
 .gacha-card-wrap.staggered.rarity-red {
@@ -5178,7 +5181,7 @@ function ShopPanel({
     setPityHit(hasRed);
     setShowGachaResult(true);
     setGachaAnimState(1);
-    setTimeout(() => setGachaAnimState(2), count === 1 ? 600 : 1000);
+    setTimeout(() => setGachaAnimState(2), count === 1 ? 1000 : 1500);
     if (hasRed) {
       setScreenShake(true);
       setTimeout(() => setScreenShake(false), 600);
@@ -5333,7 +5336,7 @@ function ShopPanel({
     }, "🎴 抽卡结果"), gachaResults.map((eq, i) => /*#__PURE__*/React.createElement("div", {
       key: i,
       className: 'gacha-card-wrap flex items-center gap-3 bg-bg-panel rounded-lg p-3 border ' + (eq.rarity === 'red' ? 'border-red-600 eq-red gacha-glow' : eq.rarity === 'orange' ? 'border-orange-600 eq-orange gacha-glow' : 'border-slate-700') + (eq.rarity === 'red' ? ' rarity-red' : eq.rarity === 'orange' ? ' rarity-orange' : '') + (gachaResults.length > 1 ? ' staggered' : ''),
-      style: { animationDelay: (i * 0.15) + 's', '--glow-color': eq.rarity === 'red' ? 'rgba(255,34,68,0.6)' : eq.rarity === 'orange' ? 'rgba(255,119,0,0.5)' : 'rgba(212,168,67,0.3)' }
+      style: { animationDelay: (i * 0.3) + 's', '--glow-color': eq.rarity === 'red' ? 'rgba(255,34,68,0.6)' : eq.rarity === 'orange' ? 'rgba(255,119,0,0.5)' : 'rgba(212,168,67,0.3)' }
     }, /*#__PURE__*/React.createElement("span", {
       className: "text-2xl"
     }, eq.icon), /*#__PURE__*/React.createElement("div", {
