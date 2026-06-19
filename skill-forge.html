@@ -6388,6 +6388,7 @@ function ChestWarehouse({
   const [openingId, setOpeningId] = useState(null);
   const [openedChest, setOpenedChest] = useState(null);
   const [showDrop, setShowDrop] = useState(false);
+  const getChestTickets = chest => chest.tickets != null ? chest.tickets : (chest.equipRarity ? 5 : 0);
   useEffect(() => {
     (async () => {
       const c = (await db.globalState.get('pendingChests'))?.value || [];
@@ -6426,7 +6427,7 @@ function ChestWarehouse({
     setChests(remaining);
 
     // Grant gacha tickets (with backward compat for old chests)
-    const earnedTickets = chest.tickets != null ? chest.tickets : (chest.equipRarity ? 5 : 0);
+    const earnedTickets = getChestTickets(chest);
     if (earnedTickets > 0) {
       const curTickets = (await db.globalState.get('gachaTickets'))?.value || 0;
       await db.globalState.put({
@@ -6549,7 +6550,7 @@ function ChestWarehouse({
       className: "text-white font-bold text-sm mt-2"
     }, chest.bossName, " 宝箱"), /*#__PURE__*/React.createElement("p", {
       className: "text-text-secondary text-[10px] mt-1"
-    }, "🎫×" + (chest.tickets != null ? chest.tickets : 5) + " · 💰", chest.coins, " · ⭐", chest.exp, "EXP"), openingId === chest.id && /*#__PURE__*/React.createElement("p", {
+    }, "🎫×" + getChestTickets(chest) + " · 💰", chest.coins, " · ⭐", chest.exp, "EXP"), openingId === chest.id && /*#__PURE__*/React.createElement("p", {
       className: "text-amber-400 text-xs mt-1 animate-pulse"
     }, "开启中..."), openingId !== chest.id && /*#__PURE__*/React.createElement("p", {
       className: `text-xs mt-1 ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`
@@ -6608,7 +6609,7 @@ function ChestWarehouse({
     className: "text-white font-bold text-sm mt-2"
   }, chest.bossName, " 宝箱"), /*#__PURE__*/React.createElement("p", {
     className: "text-text-secondary text-[10px] mt-1"
-  }, "🎫×" + (chest.tickets != null ? chest.tickets : 5) + " · 💰", chest.coins, " · ⭐", chest.exp, "EXP"), openingId === chest.id && /*#__PURE__*/React.createElement("p", {
+  }, "🎫×" + getChestTickets(chest) + " · 💰", chest.coins, " · ⭐", chest.exp, "EXP"), openingId === chest.id && /*#__PURE__*/React.createElement("p", {
     className: "text-amber-400 text-xs mt-1 animate-pulse"
   }, "开启中..."), openingId !== chest.id && /*#__PURE__*/React.createElement("p", {
     className: `text-xs mt-1 ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`
