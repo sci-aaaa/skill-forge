@@ -5417,7 +5417,7 @@ function ShopPanel({
     }, "🎴 抽卡结果"), gachaResults.map((eq, i) => /*#__PURE__*/React.createElement("div", {
       key: i,
       className: 'gacha-card-wrap flex items-center gap-3 bg-bg-panel rounded-lg p-3 border ' + (eq.rarity === 'red' ? 'border-red-600 eq-red gacha-glow' : eq.rarity === 'orange' ? 'border-orange-600 eq-orange gacha-glow' : 'border-slate-700') + (eq.rarity === 'red' ? ' rarity-red' : eq.rarity === 'orange' ? ' rarity-orange' : '') + (gachaResults.length > 1 ? ' staggered' : ''),
-      style: { animation: (eq.rarity === 'red' ? 'gacha-card-reveal-red 1.0s cubic-bezier(0.22,0.61,0.36,1) both, gacha-glow-pulse 1.5s ease-in-out 1.5s infinite' : eq.rarity === 'orange' ? 'gacha-card-reveal-orange 0.85s cubic-bezier(0.22,0.61,0.36,1) both, gacha-glow-pulse 2s ease-in-out 0.85s infinite' : 'gacha-card-reveal 0.7s cubic-bezier(0.22,0.61,0.36,1) both'), animationDelay: (i * 0.3) + 's', '--glow-color': eq.rarity === 'red' ? 'rgba(255,34,68,0.6)' : eq.rarity === 'orange' ? 'rgba(255,119,0,0.5)' : 'rgba(212,168,67,0.3)' }
+      style: { animationDelay: (i * 0.3) + 's', '--glow-color': eq.rarity === 'red' ? 'rgba(255,34,68,0.6)' : eq.rarity === 'orange' ? 'rgba(255,119,0,0.5)' : 'rgba(212,168,67,0.3)' }
     }, /*#__PURE__*/React.createElement("span", {
       className: "text-2xl"
     }, eq.icon), /*#__PURE__*/React.createElement("div", {
@@ -5643,7 +5643,7 @@ function ShopPanel({
   }, "🎴 抽卡结果"), gachaResults.map((eq, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     className: 'gacha-card-wrap flex items-center gap-3 bg-bg-panel rounded-lg p-3 border ' + (eq.rarity === 'red' ? 'border-red-600 eq-red gacha-glow' : eq.rarity === 'orange' ? 'border-orange-600 eq-orange gacha-glow' : 'border-slate-700') + (eq.rarity === 'red' ? ' rarity-red' : eq.rarity === 'orange' ? ' rarity-orange' : '') + (gachaResults.length > 1 ? ' staggered' : ''),
-    style: { animation: (eq.rarity === 'red' ? 'gacha-card-reveal-red 1.0s cubic-bezier(0.22,0.61,0.36,1) both, gacha-glow-pulse 1.5s ease-in-out 1.5s infinite' : eq.rarity === 'orange' ? 'gacha-card-reveal-orange 0.85s cubic-bezier(0.22,0.61,0.36,1) both, gacha-glow-pulse 2s ease-in-out 0.85s infinite' : 'gacha-card-reveal 0.7s cubic-bezier(0.22,0.61,0.36,1) both'), animationDelay: (i * 0.15) + 's', '--glow-color': eq.rarity === 'red' ? 'rgba(255,34,68,0.6)' : eq.rarity === 'orange' ? 'rgba(255,119,0,0.5)' : 'rgba(212,168,67,0.3)' }
+    style: { animationDelay: (i * 0.15) + 's', '--glow-color': eq.rarity === 'red' ? 'rgba(255,34,68,0.6)' : eq.rarity === 'orange' ? 'rgba(255,119,0,0.5)' : 'rgba(212,168,67,0.3)' }
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-2xl"
   }, eq.icon), /*#__PURE__*/React.createElement("div", {
