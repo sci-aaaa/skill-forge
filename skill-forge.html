@@ -3775,7 +3775,9 @@ function SkillTreePage() {
     className: "text-amber-400 text-sm font-bold"
   }, "⚡", state.power || 0), /*#__PURE__*/React.createElement("span", {
     className: "text-amber-400 text-sm font-bold"
-  }, "💰", state.coins || 0), /*#__PURE__*/React.createElement("button", {
+  }, "💰", state.coins || 0), /*#__PURE__*/React.createElement("span", {
+    className: "text-purple-400 text-sm font-bold"
+  }, "🎫", state.gachaTickets || 0), /*#__PURE__*/React.createElement("button", {
     onClick: () => dispatch({
       type: 'SET_PAGE',
       payload: 'shop'
@@ -3840,7 +3842,9 @@ function SkillTreePage() {
     className: "text-text-secondary text-xs"
   }, passedCount, "/", nodes.length), /*#__PURE__*/React.createElement("span", {
     className: "text-amber-400 text-xs font-bold"
-  }, "💰", state.coins || 0)), /*#__PURE__*/React.createElement("div", {
+  }, "💰", state.coins || 0), /*#__PURE__*/React.createElement("span", {
+    className: "text-purple-400 text-xs font-bold"
+  }, "🎫", state.gachaTickets || 0)), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-1"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => dispatch({
