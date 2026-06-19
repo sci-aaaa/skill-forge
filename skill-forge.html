@@ -2626,38 +2626,19 @@ function ExamPage({
       completedParts: comp,
       updatedAt: Date.now()
     });
+    // Grant gacha ticket for node completion
     const now = Date.now();
-    let dc = (await db.globalState.get('dropCount'))?.value || 0;
-    dc++;
+    const curTickets = (await db.globalState.get('gachaTickets'))?.value || 0;
+    const earnedTickets = 1;
     await db.globalState.put({
-      key: 'dropCount',
-      value: dc,
+      key: 'gachaTickets',
+      value: curTickets + earnedTickets,
       updatedAt: Date.now()
     });
-    const rarity = rollRarity(node.difficulty, dc);
-    const slot = SLOTS[dc % SLOTS.length];
-    const {
-      name,
-      icon,
-      stats,
-      power
-    } = generateEquipment(slot, rarity);
-    const eq = {
-      id: crypto.randomUUID(),
-      slot,
-      name,
-      rarity,
-      icon,
-      stats,
-      power,
-      description: '从"' + node.name + '"掌握时获得',
-      droppedFrom: node.id,
-      obtainedAt: now,
-      serial: dc,
-      updatedAt: Date.now()
-    };
-    await db.equipment.put(eq);
-    setEquipment(eq);
+    dispatch({
+      type: 'SET',
+      payload: { gachaTickets: curTickets + earnedTickets }
+    });
     // Daily task tracking
     const dailyItem = await recordNodeComplete();
     if (dailyItem) {
@@ -2841,14 +2822,12 @@ function ExamPage({
       payload: refreshedNodes
     });
     dispatch({
-      type: 'SET',
-      payload: {
-        dropCount: dc
-      }
+      type: 'ADD_LOG',
+      payload: '✅ 完成「' + node.name + '」全部章节！'
     });
     dispatch({
       type: 'ADD_LOG',
-      payload: '✅ 完成「' + node.name + '」全部章节！'
+      payload: '🎫 通关「' + node.name + '」获得 1 张抽卡卷！'
     });
     // EXP + quest tracking (all in one pass)
     const earnedExp = node.difficulty * 15;
