@@ -2683,39 +2683,9 @@ function ExamPage({
         value: totalCE2,
         updatedAt: Date.now()
       });
-      const bSlot = SLOTS[Math.floor(Math.random() * SLOTS.length)],
-        bDropR = count >= 2 ? 'red' : count >= 1 ? 'orange' : bossTier.equipRarity;
-      const {
-        name: bn,
-        icon: bi,
-        stats: bs,
-        power: bp_
-      } = generateEquipment(bSlot, bDropR);
-      let bdc2 = (await db.globalState.get('dropCount'))?.value || 0;
-      bdc2++;
-      await db.globalState.put({
-        key: 'dropCount',
-        value: bdc2,
-        updatedAt: Date.now()
-      });
-      await db.equipment.put({
-        id: crypto.randomUUID(),
-        slot: bSlot,
-        name: bn,
-        rarity: bDropR,
-        icon: bi,
-        stats: bs,
-        power: bp_,
-        description: '击败' + bossTier.name + '掉落',
-        serial: bdc2,
-        obtainedAt: Date.now(),
-        droppedFrom: 'boss',
-        updatedAt: Date.now()
-      });
       dispatch({
         type: 'SET',
         payload: {
-          dropCount: bdc2,
           coins: curCoins + bCoins,
           bossTier: null,
           bossChallenge: null
@@ -2723,7 +2693,7 @@ function ExamPage({
       });
       dispatch({
         type: 'ADD_LOG',
-        payload: '⚔️ 击败Boss「' + bossTier.name + '」，获得' + RARITY_LABELS[bDropR] + '装备 + 💰' + bCoins
+        payload: '⚔️ 击败Boss「' + bossTier.name + '」，获得 💰' + bCoins
       });
     } else {
       const earned = node.difficulty * 10 + Math.floor(Math.random() * node.difficulty * 20) + pendingCoins + extraCoins;
@@ -3071,12 +3041,17 @@ function ExamPage({
     }, /*#__PURE__*/React.createElement(RPGButton, {
       variant: "success",
       onClick: handleSelfPass
-    }, "✅ 通关！完成「", node.name, "」所有章节，领取奖励")))), allDone && equipment && /*#__PURE__*/React.createElement("div", {
-      className: "text-center"
-    }, /*#__PURE__*/React.createElement(DropAnimation, {
-      equipment: equipment,
-      onComplete: () => setEquipment(null)
-    })))));
+    }, "✅ 通关！完成「", node.name, "」所有章节，领取奖励")))), allDone && /*#__PURE__*/React.createElement("div", {
+    className: "bg-bg-panel border-2 border-amber-500 rounded-xl p-6 text-center"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-amber-400 mb-2"
+  }, "✅ 通关奖励"), /*#__PURE__*/React.createElement("span", {
+    className: "text-4xl block mb-2"
+  }, "🎫"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xl font-bold text-white"
+  }, "抽卡卷 ×1"), /*#__PURE__*/React.createElement("p", {
+    className: "text-text-secondary text-sm"
+  }, "前往商城抽卡获取装备")))));
   }
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 bg-black/90 z-50 overflow-y-auto"
@@ -3195,12 +3170,17 @@ function ExamPage({
   }, /*#__PURE__*/React.createElement(RPGButton, {
     variant: "success",
     onClick: handleSelfPass
-  }, "✅ 通关！完成「", node.name, "」所有章节，领取奖励")))), allDone && equipment && /*#__PURE__*/React.createElement("div", {
-    className: "text-center"
-  }, /*#__PURE__*/React.createElement(DropAnimation, {
-    equipment: equipment,
-    onComplete: () => setEquipment(null)
-  }))));
+  }, "✅ 通关！完成「", node.name, "」所有章节，领取奖励")))), allDone && /*#__PURE__*/React.createElement("div", {
+    className: "bg-bg-panel border-2 border-amber-500 rounded-xl p-6 text-center"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-amber-400 mb-2"
+  }, "✅ 通关奖励"), /*#__PURE__*/React.createElement("span", {
+    className: "text-4xl block mb-2"
+  }, "🎫"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xl font-bold text-white"
+  }, "抽卡卷 ×1"), /*#__PURE__*/React.createElement("p", {
+    className: "text-text-secondary text-sm"
+  }, "前往商城抽卡获取装备")))));
 }
 function ResultView({
   result,
