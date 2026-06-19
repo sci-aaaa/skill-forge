@@ -6425,29 +6425,20 @@ function ChestWarehouse({
     });
     setChests(remaining);
 
-    // Grant rewards
-    let cdc = (await db.globalState.get('dropCount'))?.value || 0;
-    cdc++;
-    await db.globalState.put({
-      key: 'dropCount',
-      value: cdc,
-      updatedAt: Date.now()
-    });
-    const chestEq = {
-      id: crypto.randomUUID(),
-      slot: chest.equipSlot,
-      name: chest.equipName,
-      rarity: chest.equipRarity,
-      icon: chest.equipIcon,
-      stats: chest.equipStats,
-      power: chest.equipPower,
-      description: 'Boss宝箱开出的装备',
-      serial: cdc,
-      obtainedAt: Date.now(),
-      droppedFrom: 'chest',
-      updatedAt: Date.now()
-    };
-    await db.equipment.put(chestEq);
+    // Grant gacha tickets (with backward compat for old chests)
+    const earnedTickets = chest.tickets != null ? chest.tickets : (chest.equipRarity ? 5 : 0);
+    if (earnedTickets > 0) {
+      const curTickets = (await db.globalState.get('gachaTickets'))?.value || 0;
+      await db.globalState.put({
+        key: 'gachaTickets',
+        value: curTickets + earnedTickets,
+        updatedAt: Date.now()
+      });
+      dispatch({
+        type: 'SET',
+        payload: { gachaTickets: curTickets + earnedTickets }
+      });
+    }
     const curCoins = (await db.globalState.get('coins'))?.value || 0;
     await db.globalState.put({
       key: 'coins',
@@ -6481,7 +6472,6 @@ function ChestWarehouse({
       type: 'SET',
       payload: {
         coins: curCoins + chest.coins,
-        dropCount: cdc,
         exp: ns.exp,
         level: ns.level,
         baseStats: ns.baseStats,
@@ -6491,7 +6481,7 @@ function ChestWarehouse({
     });
     dispatch({
       type: 'ADD_LOG',
-      payload: '📦 开启了Boss宝箱（来自' + chest.bossName + '）！获得' + RARITY_LABELS[chest.equipRarity] + '装备「' + chest.equipName + '」+ 💰' + chest.coins + ' + ⭐' + chestExp + 'EXP'
+      payload: '📦 开启了Boss宝箱（来自' + chest.bossName + '）！获得 🎫×' + earnedTickets + ' + 💰' + chest.coins + ' + ⭐' + chestExp + 'EXP'
     });
     if (ns.leveledUp) dispatch({
       type: 'ADD_LOG',
@@ -6501,7 +6491,7 @@ function ChestWarehouse({
     // Show opening animation
     setOpenedChest({
       ...chest,
-      eq: chestEq
+      earnedTickets
     });
     setTimeout(() => {
       setShowDrop(true);
@@ -6559,16 +6549,21 @@ function ChestWarehouse({
       className: "text-white font-bold text-sm mt-2"
     }, chest.bossName, " 宝箱"), /*#__PURE__*/React.createElement("p", {
       className: "text-text-secondary text-[10px] mt-1"
-    }, RARITY_LABELS[chest.equipRarity], "装备 · 💰", chest.coins, " · ⭐", chest.exp, "EXP"), openingId === chest.id && /*#__PURE__*/React.createElement("p", {
+    }, "🎫×" + (chest.tickets != null ? chest.tickets : 5) + " · 💰", chest.coins, " · ⭐", chest.exp, "EXP"), openingId === chest.id && /*#__PURE__*/React.createElement("p", {
       className: "text-amber-400 text-xs mt-1 animate-pulse"
     }, "开启中..."), openingId !== chest.id && /*#__PURE__*/React.createElement("p", {
       className: `text-xs mt-1 ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`
     }, keys > 0 ? '🔑 点击开启' : '🔒 需要钥匙'))))), openedChest && showDrop && /*#__PURE__*/React.createElement("div", {
       className: "fixed inset-0 flex items-center justify-center z-[60] pointer-events-none"
-    }, /*#__PURE__*/React.createElement(DropAnimation, {
-      equipment: openedChest.eq,
-      onComplete: () => {}
-    })), chests.length > 0 && keys === 0 && !openingId && /*#__PURE__*/React.createElement("p", {
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "bg-bg-panel border-2 border-amber-500 rounded-xl p-6 text-center chest-reward"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "text-amber-400 mb-2"
+    }, "📦 Boss宝箱开启！"), /*#__PURE__*/React.createElement("span", {
+      className: "text-4xl block mb-2"
+    }, "🎫"), /*#__PURE__*/React.createElement("p", {
+      className: "text-xl font-bold text-white"
+    }, "抽卡卷 ×", openedChest.earnedTickets))), chests.length > 0 && keys === 0 && !openingId && /*#__PURE__*/React.createElement("p", {
       className: "text-center text-text-secondary text-sm"
     }, "🔒 通关技能节点获取钥匙来开启宝箱"), chests.length > 0 && keys > 0 && !openingId && /*#__PURE__*/React.createElement("p", {
       className: "text-center text-amber-400 text-sm"
@@ -6613,16 +6608,21 @@ function ChestWarehouse({
     className: "text-white font-bold text-sm mt-2"
   }, chest.bossName, " 宝箱"), /*#__PURE__*/React.createElement("p", {
     className: "text-text-secondary text-[10px] mt-1"
-  }, RARITY_LABELS[chest.equipRarity], "装备 · 💰", chest.coins, " · ⭐", chest.exp, "EXP"), openingId === chest.id && /*#__PURE__*/React.createElement("p", {
+  }, "🎫×" + (chest.tickets != null ? chest.tickets : 5) + " · 💰", chest.coins, " · ⭐", chest.exp, "EXP"), openingId === chest.id && /*#__PURE__*/React.createElement("p", {
     className: "text-amber-400 text-xs mt-1 animate-pulse"
   }, "开启中..."), openingId !== chest.id && /*#__PURE__*/React.createElement("p", {
     className: `text-xs mt-1 ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`
   }, keys > 0 ? '🔑 点击开启' : '🔒 需要钥匙'))))), openedChest && showDrop && /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 flex items-center justify-center z-[60] pointer-events-none"
-  }, /*#__PURE__*/React.createElement(DropAnimation, {
-    equipment: openedChest.eq,
-    onComplete: () => {}
-  })), chests.length > 0 && keys === 0 && !openingId && /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-bg-panel border-2 border-amber-500 rounded-xl p-6 text-center chest-reward"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-amber-400 mb-2"
+  }, "📦 Boss宝箱开启！"), /*#__PURE__*/React.createElement("span", {
+    className: "text-4xl block mb-2"
+  }, "🎫"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xl font-bold text-white"
+  }, "抽卡卷 ×", openedChest.earnedTickets))), chests.length > 0 && keys === 0 && !openingId && /*#__PURE__*/React.createElement("p", {
     className: "text-center text-text-secondary text-sm"
   }, "🔒 通关技能节点获取钥匙来开启宝箱"), chests.length > 0 && keys > 0 && !openingId && /*#__PURE__*/React.createElement("p", {
     className: "text-center text-amber-400 text-sm"
