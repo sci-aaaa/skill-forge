@@ -1161,21 +1161,8 @@ async function recordNodeComplete() {
   return null;
 }
 function rollDailyReward() {
-  const rarity = rollRarity(1, Math.floor(Math.random() * 100));
-  const slot = SLOTS[Math.floor(Math.random() * SLOTS.length)];
-  const {
-    name,
-    icon,
-    stats,
-    power
-  } = generateEquipment(slot, rarity);
   return {
-    slot,
-    name,
-    rarity,
-    icon,
-    stats,
-    power,
+    tickets: 1,
     description: '每日任务奖励'
   };
 }
@@ -2674,14 +2661,15 @@ function ExamPage({
     // Daily task tracking
     const dailyItem = await recordNodeComplete();
     if (dailyItem) {
-      dailyItem.serial = ++dc;
-      dailyItem.droppedFrom = 'daily';
-      dailyItem.updatedAt = Date.now();
-      await db.equipment.put(dailyItem);
+      const curTickets = (await db.globalState.get('gachaTickets'))?.value || 0;
       await db.globalState.put({
-        key: 'dropCount',
-        value: dc,
+        key: 'gachaTickets',
+        value: curTickets + dailyItem.tickets,
         updatedAt: Date.now()
+      });
+      dispatch({
+        type: 'SET',
+        payload: { gachaTickets: curTickets + dailyItem.tickets }
       });
       setDailyReward(dailyItem);
     }
@@ -3293,21 +3281,15 @@ function ResultView({
   }, equipment.name), /*#__PURE__*/React.createElement(RarityBadge, {
     rarity: equipment.rarity,
     size: "md"
-  })), dailyReward && showDailyDrop && /*#__PURE__*/React.createElement(DropAnimation, {
-    equipment: dailyReward,
-    onComplete: () => setShowDailyDrop(false)
-  }), dailyReward && !showDailyDrop && /*#__PURE__*/React.createElement("div", {
+  })), dailyReward && /*#__PURE__*/React.createElement("div", {
     className: "bg-bg-panel border-2 border-amber-500 rounded-xl p-6 text-center"
   }, /*#__PURE__*/React.createElement("p", {
     className: "text-amber-400 mb-2"
-  }, "🎯 每日任务完成！额外获得"), /*#__PURE__*/React.createElement("p", {
-    className: "text-3xl mb-1"
-  }, dailyReward.icon), /*#__PURE__*/React.createElement("p", {
+  }, "🎯 每日任务完成！额外获得"), /*#__PURE__*/React.createElement("span", {
+    className: "text-4xl block mb-2"
+  }, "🎫"), /*#__PURE__*/React.createElement("p", {
     className: "text-xl font-bold text-white"
-  }, dailyReward.name), /*#__PURE__*/React.createElement(RarityBadge, {
-    rarity: dailyReward.rarity,
-    size: "md"
-  })), /*#__PURE__*/React.createElement("div", {
+  }, "抽卡卷 ×", dailyReward.tickets)), /*#__PURE__*/React.createElement("div", {
     className: "bg-bg-panel border border-slate-700 rounded-xl p-6"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-lg font-bold text-amber-400 mb-4"
