@@ -1532,26 +1532,6 @@ function levelUp(state) {
     leveledUp: level > (state.level || 1)
   };
 }
-const SHOP_ITEMS = [{
-  rarity: 'white',
-  cost: 30
-}, {
-  rarity: 'green',
-  cost: 80
-}, {
-  rarity: 'blue',
-  cost: 200
-}, {
-  rarity: 'purple',
-  cost: 500
-}, {
-  rarity: 'orange',
-  cost: 1200
-}, {
-  rarity: 'red',
-  cost: 3000
-}];
-
 // Helper: get current course's data
 function addLog(state, text) {
   const log = [{
