@@ -5375,7 +5375,7 @@ function ShopPanel({
     }, SLOT_NAMES[eq.slot] || eq.slot))), /*#__PURE__*/React.createElement("span", {
       className: "text-amber-400 font-bold"
     }, "⚡", eq.power))), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setShowGachaResult(false),
+      onClick: () => { setShowGachaResult(false); setGachaAnimState(0); setRevealedCards([]); },
       className: "w-full py-2 text-text-secondary hover:text-white text-sm"
     }, "关闭")))), tab === 'consumables' && /*#__PURE__*/React.createElement("div", {
       className: "grid grid-cols-2 gap-3"
@@ -5601,7 +5601,7 @@ function ShopPanel({
   }, SLOT_NAMES[eq.slot] || eq.slot))), /*#__PURE__*/React.createElement("span", {
     className: "text-amber-400 font-bold"
   }, "⚡", eq.power))), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setShowGachaResult(false),
+    onClick: () => { setShowGachaResult(false); setGachaAnimState(0); setRevealedCards([]); },
     className: "w-full py-2 text-text-secondary hover:text-white text-sm"
   }, "关闭")))), tab === 'consumables' && /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 sm:grid-cols-3 gap-3"
