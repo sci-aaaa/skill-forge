@@ -2627,7 +2627,6 @@ function ExamPage({
       updatedAt: Date.now()
     });
     // Grant gacha ticket for node completion
-    const now = Date.now();
     const curTickets = (await db.globalState.get('gachaTickets'))?.value || 0;
     const earnedTickets = 1;
     await db.globalState.put({
