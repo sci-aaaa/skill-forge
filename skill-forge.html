@@ -363,79 +363,74 @@ body {
   100% { transform: translate(var(--px), var(--py)) scale(0); opacity: 0; }
 
 /* ========== GACHA ANIMATIONS ========== */
-@keyframes gacha-overlay-in { 0% { opacity: 0; } 100% { opacity: 1; } }
-@keyframes gacha-card-enter {
-  0% { transform: scale(0) translateY(100px) rotate(-15deg); opacity: 0; filter: brightness(10); background: #ffd700; }
-  30% { transform: scale(1.3) translateY(-15px) rotate(3deg); opacity: 1; filter: brightness(2); background: #ffd700; }
-  60% { transform: scale(0.9) translateY(5px) rotate(-1deg); filter: brightness(0.8); background: transparent; }
-  80% { transform: scale(1.05) translateY(-2px) rotate(0deg); filter: brightness(1.1); background: transparent; }
-  100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; filter: brightness(1); background: transparent; }
+@keyframes gacha-overlay-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
-@keyframes gacha-card-enter-red {
-  0% { transform: scale(0) translateY(150px) rotate(-20deg); opacity: 0; filter: brightness(15) saturate(5); background: #ff0000; box-shadow: 0 0 100px rgba(255,0,0,0.9); }
-  20% { transform: scale(1.5) translateY(-25px) rotate(5deg); opacity: 1; filter: brightness(3) saturate(3); background: #ff0000; box-shadow: 0 0 60px rgba(255,0,0,0.7); }
-  45% { transform: scale(1.1) translateY(-8px) rotate(-2deg); filter: brightness(1.5) saturate(1.8); background: rgba(255,0,0,0.3); }
-  65% { transform: scale(0.92) translateY(4px) rotate(1deg); filter: brightness(0.9); background: transparent; }
-  80% { transform: scale(1.06) translateY(-3px) rotate(0deg); filter: brightness(1.2); background: transparent; }
-  100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; filter: brightness(1); background: transparent; box-shadow: 0 0 30px rgba(255,34,68,0.6); }
+@keyframes gacha-overlay-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
-@keyframes gacha-card-enter-orange {
-  0% { transform: scale(0) translateY(120px) rotate(-18deg); opacity: 0; filter: brightness(12) saturate(4); background: #ff7700; box-shadow: 0 0 80px rgba(255,119,0,0.8); }
-  25% { transform: scale(1.4) translateY(-20px) rotate(4deg); opacity: 1; filter: brightness(2.5) saturate(2.5); background: #ff7700; box-shadow: 0 0 50px rgba(255,119,0,0.6); }
-  50% { transform: scale(1.05) translateY(-5px) rotate(-1deg); filter: brightness(1.3) saturate(1.5); background: rgba(255,119,0,0.2); }
-  70% { transform: scale(0.94) translateY(3px) rotate(1deg); filter: brightness(0.9); background: transparent; }
-  85% { transform: scale(1.04) translateY(-2px) rotate(0deg); filter: brightness(1.1); background: transparent; }
-  100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; filter: brightness(1); background: transparent; box-shadow: 0 0 25px rgba(255,119,0,0.5); }
+@keyframes gacha-card-reveal {
+  0% { opacity: 0; transform: translateY(60px) scale(0.85); }
+  50% { opacity: 0.7; transform: translateY(-6px) scale(1.04); }
+  75% { opacity: 1; transform: translateY(2px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes gacha-card-reveal-red {
+  0% { opacity: 0; transform: translateY(100px) scale(0.6); filter: brightness(3) saturate(2); }
+  25% { opacity: 1; transform: translateY(-12px) scale(1.15); filter: brightness(2) saturate(2); }
+  50% { opacity: 1; transform: translateY(2px) scale(0.96); filter: brightness(1); }
+  75% { opacity: 1; transform: translateY(-3px) scale(1.03); filter: brightness(1); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1); }
+}
+@keyframes gacha-card-reveal-orange {
+  0% { opacity: 0; transform: translateY(80px) scale(0.7); filter: brightness(2.5) saturate(2); }
+  30% { opacity: 1; transform: translateY(-10px) scale(1.1); filter: brightness(1.8) saturate(1.8); }
+  55% { opacity: 1; transform: translateY(2px) scale(0.97); filter: brightness(1); }
+  80% { opacity: 1; transform: translateY(-2px) scale(1.02); filter: brightness(1); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1); }
 }
 @keyframes gacha-glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px var(--glow-color, rgba(255,200,50,0.4)), 0 0 60px var(--glow-color, rgba(255,200,50,0.15)); }
-  50% { box-shadow: 0 0 40px var(--glow-color, rgba(255,200,50,0.7)), 0 0 100px var(--glow-color, rgba(255,200,50,0.3)), 0 0 160px var(--glow-color, rgba(255,200,50,0.1)); }
+  0%, 100% { box-shadow: 0 0 15px var(--glow-color, rgba(255,200,50,0.3)), 0 0 45px var(--glow-color, rgba(255,200,50,0.1)); }
+  50% { box-shadow: 0 0 35px var(--glow-color, rgba(255,200,50,0.6)), 0 0 80px var(--glow-color, rgba(255,200,50,0.25)), 0 0 120px var(--glow-color, rgba(255,200,50,0.08)); }
 }
 @keyframes gacha-shake-screen {
   0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-8px, 4px); }
-  30% { transform: translate(8px, -4px); }
-  50% { transform: translate(-4px, 8px); }
-  70% { transform: translate(4px, -8px); }
-  90% { transform: translate(-2px, 2px); }
+  10% { transform: translate(-6px, 3px); }
+  30% { transform: translate(6px, -3px); }
+  50% { transform: translate(-3px, 6px); }
+  70% { transform: translate(3px, -6px); }
+  90% { transform: translate(-1px, 1px); }
 }
-@keyframes gacha-10pull-reveal {
-  0% { transform: translateX(-30px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
-}
-@keyframes gacha-pull-spin {
-  0% { transform: scale(0.5) rotate(0deg); opacity: 0.5; }
-  50% { transform: scale(1.15) rotate(10deg); opacity: 1; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+@keyframes gacha-pull-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; filter: brightness(1); }
+  50% { transform: scale(1.12); opacity: 1; filter: brightness(1.3); }
 }
 .gacha-overlay {
   position: fixed; inset: 0; z-index: 100;
-  background: radial-gradient(ellipse at center, rgba(10,5,30,0.95) 0%, rgba(0,0,0,0.98) 100%);
+  background: radial-gradient(ellipse at center, rgba(10,5,30,0.97) 0%, rgba(0,0,0,0.99) 100%);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  animation: gacha-overlay-in 0.3s ease-out;
+  animation: gacha-overlay-in 0.35s ease-out both;
 }
+.gacha-overlay.fade-out { animation: gacha-overlay-out 0.25s ease-in both; }
 .gacha-card-wrap {
-  animation: gacha-card-enter 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  will-change: transform, opacity;
+  animation: gacha-card-reveal 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
-.gacha-card-wrap.rarity-red { animation-name: gacha-card-enter-red; animation-duration: 1.5s; }
-.gacha-card-wrap.rarity-orange { animation-name: gacha-card-enter-orange; animation-duration: 1.3s; }
-.gacha-card-wrap.rarity-purple { animation-duration: 1.0s; }
-.gacha-card-wrap.staggered {
-  animation-name: gacha-10pull-reveal;
-  animation-duration: 0.6s;
-  animation-timing-function: ease-out;
-}
+.gacha-card-wrap.rarity-red { animation-name: gacha-card-reveal-red; animation-duration: 1.0s; }
+.gacha-card-wrap.rarity-orange { animation-name: gacha-card-reveal-orange; animation-duration: 0.85s; }
+.gacha-card-wrap.rarity-purple { animation-duration: 0.75s; }
 .gacha-card-wrap.staggered.rarity-red {
-  animation-name: gacha-10pull-reveal, gacha-glow-pulse;
-  animation-duration: 0.5s, 1.5s;
+  animation-name: gacha-card-reveal-red, gacha-glow-pulse;
+  animation-duration: 1.0s, 1.5s;
 }
 .gacha-card-wrap.staggered.rarity-orange {
-  animation-name: gacha-10pull-reveal, gacha-glow-pulse;
-  animation-duration: 0.5s, 2s;
+  animation-name: gacha-card-reveal-orange, gacha-glow-pulse;
+  animation-duration: 0.85s, 2s;
 }
 .gacha-glow { animation: gacha-glow-pulse 2s ease-in-out infinite; }
-.gacha-screen-shake { animation: gacha-shake-screen 0.6s ease-out; }
+.gacha-screen-shake { animation: gacha-shake-screen 0.5s ease-out; }
+.gacha-pull-pulse { animation: gacha-pull-pulse 1s ease-in-out infinite; }
 .gacha-pull-anim {
   animation: gacha-pull-spin 0.6s ease-in-out;
 }
@@ -5329,7 +5324,7 @@ function ShopPanel({
       className: "text-white font-bold"
     }, "10 连抽"), /*#__PURE__*/React.createElement("p", {
       className: "text-amber-400 text-sm"
-    }, "消耗 9 张"))), showGachaResult && /*#__PURE__*/React.createElement(React.Fragment, null, gachaAnimState === 1 && /*#__PURE__*/React.createElement("div", { className: "gacha-overlay" }, /*#__PURE__*/React.createElement("div", { className: "gacha-card-wrap", style: { width: "140px", height: "180px", background: "linear-gradient(135deg, #2A1A2A, #3A2A4A)", borderRadius: "16px", border: "2px solid rgba(212,168,67,0.5)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", animation: "gacha-pull-spin 0.6s ease-in-out" } }, /*#__PURE__*/React.createElement("span", { style: { fontSize: "60px" } }, "🎫")), /*#__PURE__*/React.createElement("p", { className: "text-amber-400 text-xl font-bold rpg-text", style: { animation: "pulse-glow 1s ease-in-out infinite" } }, "抽卡中...")), gachaAnimState === 2 && /*#__PURE__*/React.createElement("div", {
+    }, "消耗 9 张"))), showGachaResult && /*#__PURE__*/React.createElement(React.Fragment, null, gachaAnimState === 1 && /*#__PURE__*/React.createElement("div", { className: "gacha-overlay" }, /*#__PURE__*/React.createElement("div", { className: "gacha-pull-pulse", style: { width: "140px", height: "180px", background: "linear-gradient(135deg, #2A1A2A, #3A2A4A)", borderRadius: "16px", border: "2px solid rgba(212,168,67,0.5)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" } }, /*#__PURE__*/React.createElement("span", { style: { fontSize: "60px" } }, "🎫")), /*#__PURE__*/React.createElement("p", { className: "text-amber-400 text-xl font-bold rpg-text gacha-pull-pulse" }, "抽卡中...")), gachaAnimState === 2 && /*#__PURE__*/React.createElement("div", {
       className: "space-y-2 max-h-[50vh] overflow-y-auto"
     }, /*#__PURE__*/React.createElement("p", {
       className: "text-amber-400 font-bold text-center"
@@ -5555,7 +5550,7 @@ function ShopPanel({
     className: "text-white font-bold"
   }, "10 连抽"), /*#__PURE__*/React.createElement("p", {
     className: "text-amber-400 text-sm"
-  }, "消耗 9 张"))), showGachaResult && /*#__PURE__*/React.createElement(React.Fragment, null, gachaAnimState === 1 && /*#__PURE__*/React.createElement("div", { className: "gacha-overlay" }, /*#__PURE__*/React.createElement("div", { className: "gacha-card-wrap", style: { width: "140px", height: "180px", background: "linear-gradient(135deg, #2A1A2A, #3A2A4A)", borderRadius: "16px", border: "2px solid rgba(212,168,67,0.5)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", animation: "gacha-pull-spin 0.6s ease-in-out" } }, /*#__PURE__*/React.createElement("span", { style: { fontSize: "60px" } }, "🎫")), /*#__PURE__*/React.createElement("p", { className: "text-amber-400 text-xl font-bold rpg-text", style: { animation: "pulse-glow 1s ease-in-out infinite" } }, "抽卡中...")), /*#__PURE__*/React.createElement("div", {
+  }, "消耗 9 张"))), showGachaResult && /*#__PURE__*/React.createElement(React.Fragment, null, gachaAnimState === 1 && /*#__PURE__*/React.createElement("div", { className: "gacha-overlay" }, /*#__PURE__*/React.createElement("div", { className: "gacha-pull-pulse", style: { width: "140px", height: "180px", background: "linear-gradient(135deg, #2A1A2A, #3A2A4A)", borderRadius: "16px", border: "2px solid rgba(212,168,67,0.5)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" } }, /*#__PURE__*/React.createElement("span", { style: { fontSize: "60px" } }, "🎫")), /*#__PURE__*/React.createElement("p", { className: "text-amber-400 text-xl font-bold rpg-text gacha-pull-pulse" }, "抽卡中...")), /*#__PURE__*/React.createElement("div", {
     className: "space-y-2 max-h-[50vh] overflow-y-auto"
   }, /*#__PURE__*/React.createElement("p", {
     className: "text-amber-400 font-bold text-center"
