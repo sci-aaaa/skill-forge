@@ -5200,12 +5200,68 @@ function ShopPanel({
     overlay.appendChild(inner);
     document.body.appendChild(overlay);
 
-    // Remove overlay when cards reveal
+    // Remove overlay when cards reveal, then animate cards with Web Animations API
     setTimeout(function() {
       setGachaAnimState(2);
       overlay.style.transition = 'opacity 0.25s';
       overlay.style.opacity = '0';
       setTimeout(function() { if(overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 250);
+
+      // Animate result cards after React renders them
+      setTimeout(function() {
+        var cards = document.querySelectorAll('.gacha-card-wrap');
+        cards.forEach(function(card, i) {
+          var isRed = card.classList.contains('rarity-red');
+          var isOrange = card.classList.contains('rarity-orange');
+          var keyframes;
+          if (isRed) {
+            keyframes = [
+              { opacity: 0, transform: 'translateY(100px) scale(0.6)', filter: 'brightness(3) saturate(2)' },
+              { opacity: 1, transform: 'translateY(-12px) scale(1.15)', filter: 'brightness(2) saturate(2)', offset: 0.25 },
+              { opacity: 1, transform: 'translateY(2px) scale(0.96)', filter: 'brightness(1)', offset: 0.5 },
+              { opacity: 1, transform: 'translateY(-3px) scale(1.03)', filter: 'brightness(1)', offset: 0.75 },
+              { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'brightness(1)' }
+            ];
+          } else if (isOrange) {
+            keyframes = [
+              { opacity: 0, transform: 'translateY(80px) scale(0.7)', filter: 'brightness(2.5) saturate(2)' },
+              { opacity: 1, transform: 'translateY(-10px) scale(1.1)', filter: 'brightness(1.8) saturate(1.8)', offset: 0.3 },
+              { opacity: 1, transform: 'translateY(2px) scale(0.97)', filter: 'brightness(1)', offset: 0.55 },
+              { opacity: 1, transform: 'translateY(-2px) scale(1.02)', filter: 'brightness(1)', offset: 0.8 },
+              { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'brightness(1)' }
+            ];
+          } else {
+            keyframes = [
+              { opacity: 0, transform: 'translateY(60px) scale(0.85)' },
+              { opacity: 0.7, transform: 'translateY(-6px) scale(1.04)', offset: 0.5 },
+              { opacity: 1, transform: 'translateY(2px) scale(0.98)', offset: 0.75 },
+              { opacity: 1, transform: 'translateY(0) scale(1)' }
+            ];
+          }
+          card.animate(keyframes, {
+            duration: isRed ? 1000 : isOrange ? 850 : 700,
+            delay: i * 300,
+            easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+            fill: 'both'
+          });
+        });
+
+        // Glow pulse for rare cards after entrance
+        var rareCards = document.querySelectorAll('.gacha-card-wrap.rarity-red, .gacha-card-wrap.rarity-orange');
+        rareCards.forEach(function(card) {
+          var glowColor = card.classList.contains('rarity-red') ? 'rgba(255,34,68,0.6)' : 'rgba(255,119,0,0.5)';
+          card.animate([
+            { boxShadow: '0 0 15px ' + glowColor + ', 0 0 45px ' + glowColor.replace('0.6','0.1').replace('0.5','0.1') },
+            { boxShadow: '0 0 35px ' + glowColor + ', 0 0 80px ' + glowColor.replace('0.6','0.25').replace('0.5','0.2') + ', 0 0 120px ' + glowColor.replace('0.6','0.08').replace('0.5','0.08') },
+            { boxShadow: '0 0 15px ' + glowColor + ', 0 0 45px ' + glowColor.replace('0.6','0.1').replace('0.5','0.1') }
+          ], {
+            duration: 2000,
+            delay: (isRed ? 1000 : 850) + parseInt(card.style.animationDelay || '0') * 1000,
+            iterations: Infinity,
+            easing: 'ease-in-out'
+          });
+        });
+      }, 100);
     }, count === 1 ? 1000 : 1500);
     if (hasRed) {
       setScreenShake(true);
