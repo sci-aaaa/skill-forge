@@ -979,39 +979,51 @@ function extractJson(text) {
   throw new Error('AI 返回的 JSON 格式无法解析。请重试。\n问题区域：...' + snippet + '...');
 }
 async function analyzePDFContent(pdfText) {
-  const sys = `你是一个教育内容分析专家。仔细通读教材文本，构建一张细粒度的网状技能树。
+  const sys = `你是教育内容架构师。通读教材后，按分形三原则重构课程结构。
 
-⚠️ 关键要求：只输出纯JSON，不要Markdown代码块，不要任何解释文字。JSON中所有字符串值内的双引号必须转义为\\"，换行必须转义为\\n。
+## 第一步：减法——修剪知识树枯枝（必须输出）
 
-输出格式：
+先列出你需要**战略性删除**的内容：
+- "ignored": ["不值得纳入技能树的噪音知识点（过时方法、纯历史注脚、考试不考且无认知价值的细节）"]
+
+## 第二步：乘法——找到跨章节的超概念（必须输出）
+
+找到2-3个能统一多个章节的"超概念"（如"期望"统一了矩、特征函数、随机变量函数分布）：
+- "superConcepts": [{"name":"超概念名","unifies":["被统一的知识点"],"description":"一句话解释为什么它们是一回事"}]
+
+## 第三步：重编码——重构目录为认知模块（核心输出）
+
+**不要**照搬教材的线性章节目录。按人类认知逻辑重新打包为3-5个模块：
+- 模块划分逻辑：描述世界 → 操作世界 → 推断世界（或其他适合该学科的逻辑）
+- 每个模块 = 一个 skillTree
+- 模块内的节点按依赖关系形成网状结构（不是一条线）
+
+## JSON输出格式
 {
   "courseTitle": "课程名称",
+  "ignored": ["被删除的噪音知识点"],
+  "superConcepts": [{"name":"超概念","unifies":["..."],"description":"..."}],
   "skillTrees": [
     {
       "id": "tree-1",
-      "title": "大章节名称",
+      "title": "模块名（体现认知功能，如「描述随机世界」而非「第3章」）",
+      "principle": "此模块对应三原则中的哪一个（减法/乘法/重编码），及其理由",
       "nodes": [
-        {"id":"t1-n1","name":"具体知识点","description":"一句话说明该知识点是什么","difficulty":1,"position":{"x":0.3,"y":0.1}}
+        {"id":"t1-n1","name":"知识点","description":"一句话说明这是什么","difficulty":1,"position":{"x":0.3,"y":0.1}}
       ],
-      "edges": [
-        {"from":"t1-n1","to":"t1-n3"}
-      ]
+      "edges": [{"from":"t1-n1","to":"t1-n3"}]
     }
   ]
 }
 
-严格遵循以下规则：
-1. skillTrees数量 = 教材中有几个大章就几个（通常4-8个），不要漏章
-2. 每个skillTree至少8个节点，最多25个节点，粒度要细——把每个小节、每个关键概念都拆成独立节点
-3. 不要把节点串成一条线！要构建网状结构：
-   - 多个节点可以依赖同一个前置节点（发散）
-   - 一个节点可以依赖多个前置节点（汇聚）
-   - 同一章内的节点可以有交叉依赖
-4. edges的from→to表示：必须先掌握from才能学to
-5. difficulty 1-5：1=简单概念/记忆，2=基本应用，3=需要推导，4=综合运用，5=高难度
-6. position用0-1坐标，尽量让节点均匀分布在画布上（不要堆在一处）
-7. 节点id格式："t" + 树序号 + "-n" + 节点序号，如"t1-n1"、"t2-n5"
-8. 把教材中所有主要知识点都覆盖到，宁多勿少`;
+## 严格规则
+1. skillTrees数量 = 3-5个认知模块（不是教材章数！宁少勿多，每个模块8-20个节点）
+2. 跨模块的edges用 from 和 to 引用不同tree的节点（如{"from":"t1-n3","to":"t2-n1"}）
+3. superConcepts 中的概念必须在对应模块中作为高难度节点出现
+4. difficulty 1-5：1=记忆术语，2=理解用法，3=推导计算，4=综合应用，5=跨模块贯通
+5. 节点id："t" + 树序号 + "-n" + 节点序号
+6. position用0-1坐标均匀分布
+7. ⚠️ 只输出纯JSON，不要Markdown代码块，不要解释文字`;
   const resp = await chat([{
     role: 'system',
     content: sys
@@ -3522,6 +3534,8 @@ function HomePage() {
         id: courseId,
         pdfName: file.name,
         skillTrees: result.skillTrees,
+        ignored: result.ignored || [],
+        superConcepts: result.superConcepts || [],
         createdAt: Date.now(),
         updatedAt: Date.now()
       });
