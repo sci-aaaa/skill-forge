@@ -1026,31 +1026,39 @@ async function analyzePDFContent(pdfText) {
 }
 async function generateLessonWithQuizzes(nodeName, nodeDescription, difficulty) {
   const partsNeeded = Math.min(2 + difficulty, 5);
-  const sys = `你是一个优秀的老师。将知识点拆分为${partsNeeded}个递进部分，每个部分包含一段Markdown讲义和一道小题目。
+  // Three fixed question templates — zero entropy in structure, AI only fills content
+  const templates = [
+    { name: '减法', q: '在「${concept}」这个概念里，有什么是可以**彻底忽略**的？哪些细节是噪音，哪些是本质？', a: '可忽略：...（列出）；本质：...（一句话）' },
+    { name: '乘法', q: '把「${concept}」**映射**到你早已掌握的旧知识上。它和你学过的什么最像？对应关系是什么？', a: '映射到：...（旧知识名称）；对应关系：...（逐条列出）' },
+    { name: '因式分解', q: '把「${concept}」**打包**成一个更简洁的单元。用一句话或一个公式概括它。', a: '一句话概括：...（或）公式：$...$' }
+  ];
+  const sys = `你是教材编写者。把「${nodeName}${nodeDescription ? ' —— ' + nodeDescription : ''}」拆成${partsNeeded}部分。每部分=一段讲义+一道题。
 
-输出严格JSON：
-{
-  "parts": [
-    {
-      "lesson": "第一部分讲义（Markdown，公式用$...$）",
-      "question": "针对这部分的小题目（Markdown）",
-      "answer": "标准答案和关键要点",
-      "maxScore": 30
-    }
-  ]
+## 讲义规则
+- 第1部分：核心概念定义（是什么） ≤200字
+- 第2部分：用法/公式/机制（怎么用） ≤200字
+- 第3+部分：递进推导、应用场景、边界条件 ≤200字
+- 公式用 $...$，关键术语用**粗体**
+
+## 题目规则（三题循环）
+${
+  Array.from({length: partsNeeded}, (_, i) => {
+    const t = templates[i % 3];
+    return `第${i+1}部分用「${t.name}」模板：\n  题目：${t.q}\n  答案格式：${t.a}`;
+  }).join('\n')
 }
 
-要求：
-1. 讲义从基础到深入递进，难度逐步提升
-2. 每个小题目针对当前部分内容，不要太难
-3. 总共${partsNeeded}个部分
-4. 最后一部分的题目综合一些`;
+## JSON输出
+{"parts":[{"lesson":"讲义(Markdown)","question":"题目","answer":"标准答案","maxScore":30}]}
+
+题目中的 $\{concept\} 替换为该部分讲义讲授的具体概念名称。`;
+
   const resp = await chat([{
     role: 'system',
     content: sys
   }, {
     role: 'user',
-    content: `知识点：${nodeName}\n描述：${nodeDescription}\n难度：${difficulty}/5`
+    content: `知识点：${nodeName}\n难度：${difficulty}/5\n请生成${partsNeeded}个部分。`
   }], {
     maxTokens: 8000
   });
