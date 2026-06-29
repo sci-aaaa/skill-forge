@@ -1026,39 +1026,54 @@ async function analyzePDFContent(pdfText) {
 }
 async function generateLessonWithQuizzes(nodeName, nodeDescription, difficulty) {
   const partsNeeded = Math.min(2 + difficulty, 5);
-  // Three fixed question templates — zero entropy in structure, AI only fills content
-  const templates = [
-    { name: '减法', q: '在「${concept}」这个概念里，有什么是可以**彻底忽略**的？哪些细节是噪音，哪些是本质？', a: '可忽略：...（列出）；本质：...（一句话）' },
-    { name: '乘法', q: '把「${concept}」**映射**到你早已掌握的旧知识上。它和你学过的什么最像？对应关系是什么？', a: '映射到：...（旧知识名称）；对应关系：...（逐条列出）' },
-    { name: '因式分解', q: '把「${concept}」**打包**成一个更简洁的单元。用一句话或一个公式概括它。', a: '一句话概括：...（或）公式：$...$' }
-  ];
-  const sys = `你是教材编写者。把「${nodeName}${nodeDescription ? ' —— ' + nodeDescription : ''}」拆成${partsNeeded}部分。每部分=一段讲义+一道题。
+  const subject = nodeName;
+  const sys = `你是费曼式的老师。把「${subject}${nodeDescription ? ' —— ' + nodeDescription : ''}」拆成${partsNeeded}个知识点。每个知识点输出一段讲义和一道题。
 
-## 讲义规则
-- 第1部分：核心概念定义（是什么） ≤200字
-- 第2部分：用法/公式/机制（怎么用） ≤200字
-- 第3+部分：递进推导、应用场景、边界条件 ≤200字
-- 公式用 $...$，关键术语用**粗体**
+## 每段讲义的固定结构（分形框架，必须遵守）
 
-## 题目规则（三题循环）
-${
-  Array.from({length: partsNeeded}, (_, i) => {
-    const t = templates[i % 3];
-    return `第${i+1}部分用「${t.name}」模板：\n  题目：${t.q}\n  答案格式：${t.a}`;
-  }).join('\n')
-}
+每段讲义按以下三段式输出：
+
+### 边界（减法）
+明确说出：这个概念**不是什么**、哪些细节可以忽略、哪些是考试不考的噪音。
+格式："这不是...；你可以忽略...；真正重要的是..."
+
+### 锚点（乘法）
+将这个概念**映射到一个已有知识**。它和你学过的什么最像？为什么？
+格式："这和...是同一回事，因为...；或者，它就是...的极限/特例/推广"
+
+### 压缩（重编码）
+把这段知识**打包成一个最小单元**——一个核心意象、一句口诀、或一个公式。
+格式："记住这一个就够了：..."
+
+三段之后，给出题目。题目交替考察学生对三个原则的运用：
+- 第1、4、7...部分：考察**减法**——让学生辨别哪些是噪音
+- 第2、5、8...部分：考察**乘法**——让学生找到映射关系
+- 第3、6、9...部分：考察**重编码**——让学生自己压缩知识
+
+## 通用规则
+- 每段讲义控制在250字以内，公式用 $...$
+- 题目答案必须唯一、确定、可客观评判
+- 如果${difficulty}≤2，概念简单，锚点选初中/小学数学
+- 如果${difficulty}≥4，锚点可选同科目的高级概念，但必须已在前几部分出现过
 
 ## JSON输出
-{"parts":[{"lesson":"讲义(Markdown)","question":"题目","answer":"标准答案","maxScore":30}]}
-
-题目中的 $\{concept\} 替换为该部分讲义讲授的具体概念名称。`;
+{
+  "parts": [
+    {
+      "lesson": "### 边界（减法）\\n...\\n\\n### 锚点（乘法）\\n...\\n\\n### 压缩（重编码）\\n...",
+      "question": "题目（Markdown）",
+      "answer": "标准答案",
+      "maxScore": 30
+    }
+  ]
+}`;
 
   const resp = await chat([{
     role: 'system',
     content: sys
   }, {
     role: 'user',
-    content: `知识点：${nodeName}\n难度：${difficulty}/5\n请生成${partsNeeded}个部分。`
+    content: `知识点：${nodeName}\n难度：${difficulty}/5\n请严格按三段式生成${partsNeeded}个部分。`
   }], {
     maxTokens: 8000
   });
